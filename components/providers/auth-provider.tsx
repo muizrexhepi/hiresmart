@@ -35,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refresh();
 
-    // Subscribe to authentication events using Appwrite's realtime API with proper typing
     const unsubscribe = client.subscribe<RealtimeResponseEvent<Models.Session>>(
       "account",
       (response: any) => {

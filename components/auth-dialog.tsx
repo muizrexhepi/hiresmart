@@ -1,6 +1,6 @@
 import * as React from "react";
 import Image from "next/image";
-import { Apple, Facebook, Mail, ArrowLeft } from "lucide-react";
+import { Apple, Facebook, Mail, ArrowLeft, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ export function AuthDialog() {
       <div className="flex items-center gap-2">
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => setIsVerification(false)}
           className="p-0 h-8 w-8"
@@ -93,7 +93,11 @@ export function AuthDialog() {
         />
       </div>
       <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Verifying..." : "Verify Code"}
+        {isLoading ? (
+          <Loader2 className="animate-spin mx-auto" />
+        ) : (
+          "Verify Code"
+        )}
       </Button>
     </form>
   );
@@ -121,7 +125,11 @@ export function AuthDialog() {
         disabled={isLoading}
       />
       <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Sending..." : "Continue with email"}
+        {isLoading ? (
+          <Loader2 className="animate-spin mx-auto" />
+        ) : (
+          "Continue with email"
+        )}
       </Button>
     </form>
   );
@@ -172,20 +180,10 @@ export function AuthDialog() {
       <div className="flex items-center gap-2">
         <DialogTrigger asChild>
           <Button
-            variant="default"
             className="hidden md:inline-flex"
             onClick={() => setShowDialog(true)}
           >
-            Sign In
-          </Button>
-        </DialogTrigger>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="hidden md:inline-flex"
-            onClick={() => setShowDialog(true)}
-          >
-            Join
+            Login
           </Button>
         </DialogTrigger>
       </div>

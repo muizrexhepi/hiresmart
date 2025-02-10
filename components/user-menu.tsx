@@ -7,6 +7,7 @@ import {
   UserCircle,
   Heart,
   BriefcaseIcon,
+  Menu,
 } from "lucide-react";
 
 import {
@@ -22,13 +23,16 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { authHelper } from "@/lib/appwrite";
 import { useRouter } from "next/navigation";
+import { useAuth } from "./providers/auth-provider";
 
 export function UserMenu({ user }: any) {
   const router = useRouter();
+  const { refresh } = useAuth();
 
   const handleSignOut = async () => {
     try {
       await authHelper.signOut();
+      await refresh();
       router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -39,11 +43,11 @@ export function UserMenu({ user }: any) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          className="relative h-8 w-8 rounded-full"
-          size="icon"
+          variant={"outline"}
+          className="relative rounded-full bg-transparent border transition-colors px-3"
         >
-          <Avatar className="h-8 w-8">
+          <Menu color="black" size={30} />
+          <Avatar className="size-6">
             <AvatarImage src={user?.avatarUrl} alt={user?.name} />
             <AvatarFallback>
               <UserCircle className="h-6 w-6" />

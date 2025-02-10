@@ -116,7 +116,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <div className="flex gap-4 mt-2">
+                <div className="flex flex-wrap gap-4 mt-2">
                   <a href="#" className="text-gray-600 hover:text-blue-600">
                     Facebook
                   </a>
