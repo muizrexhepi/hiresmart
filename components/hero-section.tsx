@@ -49,7 +49,7 @@ export function HeroSection() {
 
   return (
     <div className="relative sm:py-4 lg:py-8 sm:container">
-      <section className="bg-gradient-to-b from-[#023020] to-[#034530] relative overflow-hidden min-h-[600px] flex items-center sm:rounded-2xl">
+      <section className="bg-gradient-to-b from-[#023020] to-[#034530] relative overflow-hidden min-h-[600px] flex items-center sm:rounded-2xl shadow-lg">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black/40" />
           <Image
@@ -142,13 +142,8 @@ export function HeroSection() {
                     value={selectedLocation}
                     onValueChange={setSelectedLocation}
                   >
-                    <SelectTrigger className="h-14 bg-white md:w-[160px]">
-                      <SelectValue placeholder="Location">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          Location
-                        </div>
-                      </SelectValue>
+                    <SelectTrigger className="h-14 bg-white md:w-[160px] lg:flex-1">
+                      <SelectValue placeholder="Location" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Locations</SelectItem>
@@ -160,10 +155,7 @@ export function HeroSection() {
                     </SelectContent>
                   </Select>
 
-                  <Button
-                    type="submit"
-                    className="h-14 px-8 bg-primary hover:bg-primary/90 shadow-lg"
-                  >
+                  <Button type="submit" className="h-14 px-8">
                     <Search className="h-5 w-5" />
                   </Button>
                 </div>

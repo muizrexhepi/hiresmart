@@ -8,7 +8,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "HireSmart - Macedonia's Marketplace for Services",
+  title: "TvojPazar - Macedonia's Marketplace for Services",
   description: "Find and hire top talent in Macedonia for your projects.",
 };
 
