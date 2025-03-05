@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { categories } from "@/constants/categories";
 import {
   Card,
   CardContent,
@@ -13,13 +12,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CATEGORIES } from "@/constants/categories";
 
 export default function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Filter categories based on search
-  const filteredCategories = categories.filter(
+  const filteredCategories = CATEGORIES.filter(
     (category) =>
       category.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       category.titleMk.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,7 +74,7 @@ export default function CategoriesPage() {
                   </div>
                   <div>
                     <CardTitle className="text-xl mb-1">
-                      {category.titleMk}
+                      {category.title}
                     </CardTitle>
                     <CardDescription>{category.title}</CardDescription>
                   </div>
@@ -84,18 +84,18 @@ export default function CategoriesPage() {
                     {category.subCategories.map((subCategory) => (
                       <Link
                         key={subCategory.id}
-                        href={`/category/${category.id}/${subCategory.id}`}
+                        href={`/categories/${category.id}/${subCategory.id}`}
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 group transition-colors"
                       >
                         <span className="text-sm text-gray-600 group-hover:text-primary">
-                          {subCategory.titleMk}
+                          {subCategory.title}
                         </span>
                         <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-primary" />
                       </Link>
                     ))}
                   </div>
                   <Button variant="outline" className="w-full mt-4" asChild>
-                    <Link href={`/category/${category.id}`}>
+                    <Link href={`/categories/${category.id}`}>
                       View All in {category.title}
                     </Link>
                   </Button>

@@ -1,26 +1,45 @@
 import {
   Car,
-  Home,
+  Building2,
   Briefcase,
-  Laptop,
+  Smartphone,
   Sofa,
   Bike,
   Wrench,
-  Building2,
   ShoppingBag,
-  Smartphone,
-  Camera,
-  HeadphonesIcon,
-  Truck,
-  PawPrint,
 } from "lucide-react";
 
-export const categories = [
+// Keep the mapping of string names to icon components
+export const CATEGORY_ICONS = {
+  vehicles: "Car",
+  "real-estate": "Building2",
+  jobs: "Briefcase",
+  electronics: "Smartphone",
+  "home-garden": "Sofa",
+  sports: "Bike",
+  tools: "Wrench",
+  services: "ShoppingBag",
+} as const;
+
+// Create a direct mapping for easier access
+export const ICON_COMPONENTS = {
+  vehicles: Car,
+  "real-estate": Building2,
+  jobs: Briefcase,
+  electronics: Smartphone,
+  "home-garden": Sofa,
+  sports: Bike,
+  tools: Wrench,
+  services: ShoppingBag,
+};
+
+export const CATEGORIES = [
   {
     id: "vehicles",
     title: "Vehicles",
     titleMk: "Возила",
-    icon: Car,
+    iconName: "vehicles",
+    icon: Car, // Keep the direct icon reference
     color: "text-blue-500",
     subCategories: [
       { id: "cars", title: "Cars", titleMk: "Автомобили" },
@@ -38,6 +57,7 @@ export const categories = [
     id: "real-estate",
     title: "Real Estate",
     titleMk: "Недвижности",
+    iconName: "real-estate",
     icon: Building2,
     color: "text-orange-500",
     subCategories: [
@@ -51,6 +71,7 @@ export const categories = [
     id: "jobs",
     title: "Jobs",
     titleMk: "Работа",
+    iconName: "jobs",
     icon: Briefcase,
     color: "text-green-500",
     subCategories: [
@@ -68,6 +89,7 @@ export const categories = [
     id: "electronics",
     title: "Electronics",
     titleMk: "Електроника",
+    iconName: "electronics",
     icon: Smartphone,
     color: "text-purple-500",
     subCategories: [
@@ -81,6 +103,7 @@ export const categories = [
     id: "home-garden",
     title: "Home & Garden",
     titleMk: "Дом и Градина",
+    iconName: "home-garden",
     icon: Sofa,
     color: "text-yellow-500",
     subCategories: [
@@ -94,6 +117,7 @@ export const categories = [
     id: "sports",
     title: "Sports & Recreation",
     titleMk: "Спорт и Рекреација",
+    iconName: "sports",
     icon: Bike,
     color: "text-red-500",
     subCategories: [
@@ -107,6 +131,7 @@ export const categories = [
     id: "tools",
     title: "Tools & Machinery",
     titleMk: "Алати и Машини",
+    iconName: "tools",
     icon: Wrench,
     color: "text-zinc-500",
     subCategories: [
@@ -123,6 +148,7 @@ export const categories = [
     id: "services",
     title: "Services",
     titleMk: "Услуги",
+    iconName: "services",
     icon: ShoppingBag,
     color: "text-indigo-500",
     subCategories: [
@@ -134,6 +160,6 @@ export const categories = [
   },
 ] as const;
 
-export type CategoryId = (typeof categories)[number]["id"];
+export type CategoryId = (typeof CATEGORIES)[number]["id"];
 export type SubcategoryId =
-  (typeof categories)[number]["subCategories"][number]["id"];
+  (typeof CATEGORIES)[number]["subCategories"][number]["id"];

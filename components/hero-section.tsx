@@ -1,10 +1,10 @@
 "use client";
 
-import { Search, MapPin } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { categories } from "@/constants/categories";
+import { CATEGORIES } from "@/constants/categories";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -14,15 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const locations = [
-  { id: "skopje", name: "Скопје", nameEn: "Skopje" },
-  { id: "bitola", name: "Битола", nameEn: "Bitola" },
-  { id: "kumanovo", name: "Куманово", nameEn: "Kumanovo" },
-  { id: "prilep", name: "Прилеп", nameEn: "Prilep" },
-  { id: "tetovo", name: "Тетово", nameEn: "Tetovo" },
-  { id: "veles", name: "Велес", nameEn: "Veles" },
-];
+import { LOCATIONS } from "@/constants/locations";
 
 export function HeroSection() {
   const router = useRouter();
@@ -32,19 +24,20 @@ export function HeroSection() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const category = selectedCategory
+      ? encodeURIComponent(selectedCategory)
+      : "all";
+    const location = selectedLocation
+      ? encodeURIComponent(selectedLocation)
+      : "all";
     const searchParams = new URLSearchParams();
 
     if (searchQuery.trim()) {
-      searchParams.append("q", searchQuery);
-    }
-    if (selectedCategory) {
-      searchParams.append("category", selectedCategory);
-    }
-    if (selectedLocation) {
-      searchParams.append("location", selectedLocation);
+      searchParams.append("q", searchQuery.trim());
     }
 
-    router.push(`/search?${searchParams.toString()}`);
+    router.push(`/search/${category}/${location}?${searchParams.toString()}`);
   };
 
   return (
@@ -99,8 +92,8 @@ export function HeroSection() {
         <div className="container relative z-10 mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-serif text-white mb-6 leading-tight">
-              Купувајте и продавајте <br />
-              <span className="italic">во Македонија</span>
+              Buy and Sell <br />
+              <span className="italic">in Macedonia</span>
               <span className="block text-xl md:text-2xl mt-4 font-sans text-gray-300 font-normal">
                 Your trusted marketplace for buying and selling in Macedonia
               </span>
@@ -120,9 +113,9 @@ export function HeroSection() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => (
+                    {CATEGORIES.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
-                        {category.titleMk}
+                        {category.title}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -147,9 +140,9 @@ export function HeroSection() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Locations</SelectItem>
-                      {locations.map((location) => (
+                      {LOCATIONS.map((location) => (
                         <SelectItem key={location.id} value={location.id}>
-                          {location.name}
+                          {location.nameEn}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -165,17 +158,17 @@ export function HeroSection() {
             <div className="mt-12">
               <p className="text-gray-400 mb-6">Popular Categories</p>
               <div className="flex flex-wrap justify-center gap-3">
-                {categories.slice(0, 6).map((category) => {
+                {CATEGORIES.slice(0, 6).map((category) => {
                   const Icon = category.icon;
                   return (
                     <Button
                       key={category.id}
                       variant="outline"
                       className="bg-white/10 text-white hover:text-white border-white/20 hover:bg-white/20"
-                      onClick={() => router.push(`/category/${category.id}`)}
+                      onClick={() => router.push(`/categories/${category.id}`)}
                     >
                       <Icon className="w-4 h-4 mr-2" />
-                      {category.titleMk}
+                      {category.title}
                     </Button>
                   );
                 })}
