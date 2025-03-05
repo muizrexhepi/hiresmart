@@ -39,7 +39,7 @@ export default function CategoriesPage() {
             Browse Categories
           </h1>
           <p className="text-gray-600 text-center mb-8">
-            Find what you're looking for across all categories
+            Find what you&lsquo;re looking for across all categories
           </p>
 
           {/* Search Bar */}
