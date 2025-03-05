@@ -1,6 +1,6 @@
 interface DetailItem {
   label: string;
-  value: string;
+  value: string | undefined;
   fullWidth?: boolean;
 }
 
