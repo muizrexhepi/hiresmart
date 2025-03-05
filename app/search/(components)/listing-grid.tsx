@@ -1,8 +1,9 @@
 "use client";
 
+import { Listing } from "@/lib/types";
 import { AnimatePresence } from "framer-motion";
 import { ChevronRight } from "lucide-react";
-import { ListingCard, type Listing } from "./listing-card";
+import { ListingCard } from "./listing-card";
 
 interface ListingsGridProps {
   listings: Listing[];
