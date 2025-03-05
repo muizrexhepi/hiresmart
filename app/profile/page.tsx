@@ -363,7 +363,7 @@ function ListingsGrid({
           No listings found
         </h3>
         <p className="text-gray-500 mb-4">
-          You don't have any listings that match your criteria.
+          You don&apos;t have any listings that match your criteria.
         </p>
         <Link href="/listing/new">
           <Button>

@@ -8,7 +8,8 @@ export default function NotFound() {
         Seller Not Found
       </h1>
       <p className="text-gray-600 mb-6">
-        The seller profile you're looking for doesn't exist or has been removed.
+        The seller profile you&apos;re looking for doesn&apos;t exist or has
+        been removed.
       </p>
       <Link
         href="/"

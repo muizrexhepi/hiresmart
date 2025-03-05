@@ -275,7 +275,8 @@ export default function ListingDetailsPage({
             </h2>
           </div>
           <p className="text-amber-600">
-            The listing you're looking for doesn't exist or has been removed.
+            The listing you&apos;re looking for doesn&apos;t exist or has been
+            removed.
           </p>
           <button
             onClick={() => window.history.back()}

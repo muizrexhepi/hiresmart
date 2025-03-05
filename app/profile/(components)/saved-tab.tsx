@@ -27,7 +27,7 @@ export function SavedTab() {
         <div>
           <h3 className="text-2xl font-semibold">Saved Items</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Items you've saved for later
+            Items you&apos;ve saved for later
           </p>
         </div>
       </div>

@@ -79,7 +79,7 @@ export function AuthDialog() {
       </div>
       <div className="space-y-2">
         <p className="text-sm text-muted-foreground">
-          We've sent a verification code to {email}
+          We&apos;ve sent a verification code to {email}
         </p>
         <Input
           type="text"

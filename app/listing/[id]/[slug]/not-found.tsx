@@ -8,7 +8,8 @@ export default function NotFound() {
         Listing Not Found
       </h1>
       <p className="text-gray-600 mb-6">
-        The listing you're looking for doesn't exist or has been removed.
+        The listing you&apos;re looking for doesn&apos;t exist or has been
+        removed.
       </p>
       <Link
         href="/"
