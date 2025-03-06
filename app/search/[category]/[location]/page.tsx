@@ -30,6 +30,17 @@ const SearchPage = ({
   const [totalPages, setTotalPages] = useState(1);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
 
+  useEffect(() => {
+    // Set `showFilters` based on screen size (true for desktop, false for mobile)
+    const handleResize = () => {
+      setShowFilters(window.innerWidth >= 768);
+    };
+
+    handleResize(); // Initialize on mount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const fetchListings = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -97,7 +108,7 @@ const SearchPage = ({
   };
 
   const toggleFilters = () => {
-    setShowFilters(!showFilters);
+    setShowFilters((prev) => !prev);
   };
 
   return (
@@ -113,7 +124,7 @@ const SearchPage = ({
         <div className="flex flex-col md:flex-row gap-6">
           {/* Filters sidebar - hidden on mobile unless toggled */}
           <AnimatePresence>
-            {showFilters && <FiltersSidebar showFilters={showFilters} />}
+            <FiltersSidebar />
           </AnimatePresence>
 
           {/* Results section */}

@@ -37,7 +37,7 @@ export function SearchBar({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+    <div className="bg-white rounded-lg shadow-md p-2 sm:p-4 mb-6">
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3">
         <div className="flex items-center gap-2 flex-1">
           <div className="flex-1 relative">
@@ -55,16 +55,6 @@ export function SearchBar({
             className="px-6 py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors"
           >
             Search
-          </button>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={toggleFilters}
-            className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 md:hidden"
-          >
-            <Filter className="h-4 w-4" />
-            Filters
           </button>
         </div>
       </form>

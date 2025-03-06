@@ -132,7 +132,7 @@ export function Navbar() {
           {user ? <UserMenu user={user} /> : <AuthDialog />}
 
           {/* Mobile Menu */}
-          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+          {/* <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
@@ -203,7 +203,7 @@ export function Navbar() {
                 </div>
               </div>
             </SheetContent>
-          </Sheet>
+          </Sheet> */}
         </div>
       </div>
     </nav>

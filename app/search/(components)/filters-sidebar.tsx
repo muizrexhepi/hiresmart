@@ -3,13 +3,21 @@
 import { CATEGORIES } from "@/constants/categories";
 import { LOCATIONS } from "@/constants/locations";
 import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
-export function FiltersSidebar({ showFilters }: { showFilters: boolean }) {
+export function FiltersSidebar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(
     searchParams.get("category") || "all"
   );
@@ -28,12 +36,10 @@ export function FiltersSidebar({ showFilters }: { showFilters: boolean }) {
   };
 
   const handleCategoryChange = (category: string) => {
-    console.log({ category });
     setCurrentCategory(category);
   };
 
   const handleLocationChange = (location: string) => {
-    console.log({ location });
     setCurrentLocation(location);
   };
 
@@ -56,29 +62,25 @@ export function FiltersSidebar({ showFilters }: { showFilters: boolean }) {
     router.push(
       `/search/${currentCategory}/${currentLocation}?${searchParams.toString()}`
     );
+
+    // Close the sheet on mobile after applying filters
+    setIsOpen(false);
   };
 
-  return (
-    <motion.aside
-      initial={{ x: -300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: -300, opacity: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`w-full md:w-64 bg-white rounded-lg shadow-md p-4 h-fit ${
-        showFilters
-          ? "fixed inset-0 z-50 md:relative md:inset-auto"
-          : "hidden md:block"
-      }`}
-    >
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-lg">Filters</h3>
-        <button
-          onClick={() => router.push("/")}
-          className="md:hidden text-gray-500 hover:text-gray-700"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+  // Shared filter form component to avoid duplication
+  const FilterForm = ({ isMobile = false }) => (
+    <>
+      {isMobile && (
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-lg">Filters</h3>
+        </div>
+      )}
+
+      {!isMobile && (
+        <div className="mb-4">
+          <h3 className="font-bold text-lg">Filters</h3>
+        </div>
+      )}
 
       {/* Category filter */}
       <div className="mb-6">
@@ -155,12 +157,56 @@ export function FiltersSidebar({ showFilters }: { showFilters: boolean }) {
       </div>
 
       {/* Apply filters button */}
-      <button
-        onClick={handleApplyFilters}
-        className="w-full py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors"
+      {isMobile ? (
+        <SheetClose asChild>
+          <Button
+            onClick={handleApplyFilters}
+            className="w-full py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors"
+          >
+            Apply Filters
+          </Button>
+        </SheetClose>
+      ) : (
+        <Button
+          onClick={handleApplyFilters}
+          className="w-full py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors"
+        >
+          Apply Filters
+        </Button>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Filters (Sheet) */}
+      <div className="md:hidden">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-full sm:max-w-md p-4 pt-8">
+            <FilterForm isMobile={true} />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop Filters (Always visible) */}
+      <motion.aside
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="hidden md:block w-64 bg-white rounded-lg shadow-md p-4 h-fit sticky top-4"
       >
-        Apply Filters
-      </button>
-    </motion.aside>
+        <FilterForm />
+      </motion.aside>
+    </>
   );
 }
