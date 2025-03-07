@@ -104,7 +104,7 @@ export default function ProfilePage() {
     const matchesTab = activeTab === "all" || listing.status === activeTab;
     const matchesSearch =
       listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      listing?.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
       listing.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
@@ -191,7 +191,7 @@ export default function ProfilePage() {
                 {userData.location && (
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-1" />
-                    {userData.location}
+                    {userData?.location}
                   </div>
                 )}
               </div>
@@ -407,7 +407,7 @@ function ListingsGrid({
                 <div className="flex flex-wrap gap-2 text-sm text-gray-500 mb-2">
                   <div className="flex items-center">
                     <MapPin className="h-3 w-3 mr-1" />
-                    {listing.location}
+                    {listing?.location ? listing?.location : "Not specified"}
                   </div>
                   <div>• {listing.category}</div>
                 </div>
