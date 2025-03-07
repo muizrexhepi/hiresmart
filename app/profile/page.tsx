@@ -81,13 +81,14 @@ export default function ProfilePage() {
   const router = useRouter();
 
   if (!user) {
-    return router.push("/");
+    router.push("/");
+    return null;
   }
 
   const userData = {
     name: user?.name || "User",
     avatar: user?.prefs?.avatar || "/placeholder.svg?height=100&width=100",
-    memberSince: user
+    memberSince: user?.registration
       ? new Date(user.registration).toLocaleDateString("en-US", {
           month: "long",
           year: "numeric",
@@ -95,7 +96,7 @@ export default function ProfilePage() {
       : "",
     email: user?.email || "",
     phone: user?.phone || "",
-    location: user?.prefs?.location || "",
+    location: user?.prefs?.location ?? "Not specified", // Avoids undefined errors
   };
 
   // Filter listings based on active tab and search query
