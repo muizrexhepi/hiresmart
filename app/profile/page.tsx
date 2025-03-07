@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,6 +40,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/components/providers/auth-provider";
+import { useRouter } from "next/navigation";
 
 // Types
 type ListingStatus = "active" | "pending" | "sold";
@@ -53,16 +57,6 @@ interface Listing {
   createdAt: string;
 }
 
-// Mock user data
-const userData = {
-  name: "Alex Johnson",
-  avatar: "/placeholder.svg?height=100&width=100",
-  memberSince: "March 2022",
-  email: "alex.johnson@example.com",
-  phone: "+1 (555) 123-4567",
-  location: "New York, NY",
-};
-
 // Mock listings data
 const mockListings: Listing[] = [
   {
@@ -75,56 +69,6 @@ const mockListings: Listing[] = [
     category: "Vehicles",
     createdAt: "2023-10-15",
   },
-  {
-    id: "2",
-    title: "iPhone 13 Pro - Like New",
-    price: 750,
-    location: "Manhattan, NY",
-    status: "pending",
-    image: "/placeholder.svg?height=200&width=300&text=iPhone",
-    category: "Electronics",
-    createdAt: "2023-11-02",
-  },
-  {
-    id: "3",
-    title: "Professional Photography Services",
-    price: 150,
-    location: "Queens, NY",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300&text=Photography",
-    category: "Services",
-    createdAt: "2023-11-10",
-  },
-  {
-    id: "4",
-    title: "Vintage Leather Sofa",
-    price: 450,
-    location: "Bronx, NY",
-    status: "sold",
-    image: "/placeholder.svg?height=200&width=300&text=Sofa",
-    category: "Furniture",
-    createdAt: "2023-09-28",
-  },
-  {
-    id: "5",
-    title: "Mountain Bike - Professional",
-    price: 1200,
-    location: "Staten Island, NY",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300&text=Bike",
-    category: "Sports",
-    createdAt: "2023-10-05",
-  },
-  {
-    id: "6",
-    title: "Web Development Services",
-    price: null,
-    location: "Remote",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300&text=Web+Dev",
-    category: "Services",
-    createdAt: "2023-11-15",
-  },
 ];
 
 export default function ProfilePage() {
@@ -133,6 +77,26 @@ export default function ProfilePage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [listingToDelete, setListingToDelete] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("all");
+  const { user } = useAuth();
+  const router = useRouter();
+
+  if (!user) {
+    return router.push("/");
+  }
+
+  const userData = {
+    name: user?.name || "User",
+    avatar: user?.prefs?.avatar || "/placeholder.svg?height=100&width=100",
+    memberSince: user
+      ? new Date(user.registration).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        })
+      : "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    location: user?.prefs?.location || "",
+  };
 
   // Filter listings based on active tab and search query
   const filteredListings = listings.filter((listing) => {
@@ -199,12 +163,14 @@ export default function ProfilePage() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <Avatar className="h-24 w-24 border-4 border-white shadow-sm">
-              <AvatarImage src={userData.avatar} alt={userData.name} />
+              <AvatarImage src={userData.avatar} alt={user.name} />
               <AvatarFallback>
                 {userData.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                  ? userData.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                  : "U"}
               </AvatarFallback>
             </Avatar>
 
@@ -212,17 +178,21 @@ export default function ProfilePage() {
               <h1 className="text-2xl font-bold text-gray-900 mb-1">
                 {userData.name}
               </h1>
-              <div className="flex items-center text-gray-500 mb-3">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>Member since {userData.memberSince}</span>
-              </div>
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                <div>{userData.email}</div>
-                <div>{userData.phone}</div>
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {userData.location}
+              {userData.memberSince && (
+                <div className="flex items-center text-gray-500 mb-3">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  <span>Member since {userData.memberSince}</span>
                 </div>
+              )}
+              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                {userData.email && <div>{userData.email}</div>}
+                {userData.phone && <div>{userData.phone}</div>}
+                {userData.location && (
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    {userData.location}
+                  </div>
+                )}
               </div>
             </div>
 

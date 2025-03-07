@@ -85,47 +85,15 @@ export function UserMenu({ user }: any) {
           <User className={`${isMobile ? "mr-3 h-5 w-5" : "mr-2 h-4 w-4"}`} />
           Profile
         </Link>
-
-        <Link
-          href="/my-services"
-          className={`flex items-center ${isMobile ? "py-2" : ""}`}
-          onClick={() => isMobile && setIsSheetOpen(false)}
+        <div
+          className={`flex items-center text-red-600 cursor-pointer ${
+            isMobile ? "mt-auto py-2" : ""
+          }`}
+          onClick={handleSignOut}
         >
-          <BriefcaseIcon
-            className={`${isMobile ? "mr-3 h-5 w-5" : "mr-2 h-4 w-4"}`}
-          />
-          My Services
-        </Link>
-
-        <Link
-          href="/saved"
-          className={`flex items-center ${isMobile ? "py-2" : ""}`}
-          onClick={() => isMobile && setIsSheetOpen(false)}
-        >
-          <Heart className={`${isMobile ? "mr-3 h-5 w-5" : "mr-2 h-4 w-4"}`} />
-          Saved Items
-        </Link>
-
-        <Link
-          href="/settings"
-          className={`flex items-center ${isMobile ? "py-2" : ""}`}
-          onClick={() => isMobile && setIsSheetOpen(false)}
-        >
-          <Settings
-            className={`${isMobile ? "mr-3 h-5 w-5" : "mr-2 h-4 w-4"}`}
-          />
-          Settings
-        </Link>
-      </div>
-
-      <div
-        className={`flex items-center text-red-600 cursor-pointer ${
-          isMobile ? "mt-auto py-2" : ""
-        }`}
-        onClick={handleSignOut}
-      >
-        <LogOut className={`${isMobile ? "mr-3 h-5 w-5" : "mr-2 h-4 w-4"}`} />
-        Sign out
+          <LogOut className={`${isMobile ? "mr-3 h-5 w-5" : "mr-2 h-4 w-4"}`} />
+          Sign out
+        </div>
       </div>
     </>
   );
@@ -160,10 +128,6 @@ export function UserMenu({ user }: any) {
           <TriggerButton />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <MenuItems />
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link
@@ -222,10 +186,6 @@ export function UserMenu({ user }: any) {
         <div className="flex flex-col h-full p-6">
           <SheetHeader className="flex justify-between items-center">
             <SheetTitle>Account</SheetTitle>
-            <SheetClose className="rounded-full h-8 w-8 flex items-center justify-center">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </SheetClose>
           </SheetHeader>
           <div className="flex flex-col h-full mt-6">
             <MenuItems isMobile={true} />

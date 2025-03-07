@@ -14,20 +14,13 @@ import {
   DropdownMenuGroup,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { useAuth } from "./providers/auth-provider";
 
 export function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { user } = useAuth();
+  console.log({ user });
 
-  // Handle navbar background change on scroll
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -39,7 +32,7 @@ export function Navbar() {
   return (
     <nav
       className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white shadow-sm py-2 ${
-        isScrolled ? "shadow-md" : ""
+        isScrolled ? " bg-white/80 backdrop-blur" : ""
       }`}
     >
       {/* Top Bar */}

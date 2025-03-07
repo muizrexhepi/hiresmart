@@ -31,7 +31,7 @@ export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
 
 // Bucket IDs for different types of files
 export const Buckets = {
-  AVATARS: "avatars",
+  AVATARS: process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILE_PICTURE_BUCKET_ID!,
   SERVICE_IMAGES: "service-images",
   ATTACHMENTS: "attachments",
 } as const;
