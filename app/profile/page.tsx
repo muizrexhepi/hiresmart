@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,7 +43,6 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useRouter } from "next/navigation";
 
-// Types
 type ListingStatus = "active" | "pending" | "sold";
 
 interface Listing {
@@ -79,9 +78,24 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("all");
   const { user } = useAuth();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
+  // Use useEffect to ensure we're only running this client-side
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (!user) {
+      router.push("/");
+    }
+  }, [user, router]);
+
+  // Don't render until client-side
+  if (!isMounted) {
+    return null;
+  }
+
+  // If no user is logged in, don't render the page
   if (!user) {
-    router.push("/");
     return null;
   }
 
