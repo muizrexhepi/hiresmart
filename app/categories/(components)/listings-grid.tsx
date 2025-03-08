@@ -33,7 +33,7 @@ export default async function ListingsGrid({
     location,
     page,
     limit,
-    sortBy: sort, // Map 'sort' to 'sortBy' for the backend function
+    sortBy: sort, // Map the 'sort' prop to 'sortBy' for the backend function
   });
 
   // If no listings found
