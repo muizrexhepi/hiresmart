@@ -1,13 +1,12 @@
 import { Tag } from "lucide-react";
 import Pagination from "./pagination";
 import ListingCard from "./listing-card";
-import { Listing } from "@/lib/types";
 import { getFilteredListings } from "@/app/actions/listings";
 
 interface ListingsGridProps {
   categoryId?: string;
   subcategoryId?: string;
-  sortBy?: string;
+  sort?: string;
   minPrice?: number;
   maxPrice?: number;
   location?: string;
@@ -18,7 +17,7 @@ interface ListingsGridProps {
 export default async function ListingsGrid({
   categoryId,
   subcategoryId,
-  sortBy = "newest",
+  sort = "newest",
   minPrice,
   maxPrice,
   location,
@@ -34,7 +33,7 @@ export default async function ListingsGrid({
     location,
     page,
     limit,
-    sortBy,
+    sortBy: sort, // Map 'sort' to 'sortBy' for the backend function
   });
 
   // If no listings found
@@ -78,7 +77,7 @@ export default async function ListingsGrid({
           totalPages={totalPages}
           categoryId={categoryId}
           subcategoryId={subcategoryId}
-          sort={sortBy}
+          sort={sort}
           minPrice={minPrice}
           maxPrice={maxPrice}
           location={location}
