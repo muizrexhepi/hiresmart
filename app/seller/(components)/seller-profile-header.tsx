@@ -10,15 +10,8 @@ import {
   MessageCircle,
   Heart,
   Share2,
-  ExternalLink,
 } from "lucide-react";
 import { LOCATIONS } from "@/constants/locations";
-
-interface SocialLink {
-  platform: string;
-  url: string;
-  icon: React.ReactNode;
-}
 
 interface SellerProfileHeaderProps {
   seller: {
@@ -28,13 +21,11 @@ interface SellerProfileHeaderProps {
     location: string;
     bio: string;
     rating: number;
-    reviewCount: number;
+    totalListings: number;
     memberSince: string;
     verified: boolean;
     responseRate: string;
     responseTime: string;
-    totalListings: number;
-    socialLinks?: SocialLink[];
   };
   onContact: () => void;
   onFollow: () => void;
@@ -107,9 +98,6 @@ export function SellerProfileHeader({
               ))}
             </div>
             <span className="font-medium">{seller.rating.toFixed(1)}</span>
-            <span className="text-gray-500">
-              ({seller.reviewCount} reviews)
-            </span>
           </div>
 
           <div className="text-sm text-gray-600 mb-4">
@@ -163,24 +151,6 @@ export function SellerProfileHeader({
         <div className="mt-6 pt-6 border-t border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800 mb-2">About</h2>
           <p className="text-gray-600">{seller.bio}</p>
-        </div>
-      )}
-
-      {/* Social Links */}
-      {seller.socialLinks && seller.socialLinks.length > 0 && (
-        <div className="mt-4 flex gap-3">
-          {seller.socialLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label={`Visit ${link.platform}`}
-            >
-              {link.icon || <ExternalLink className="h-5 w-5" />}
-            </a>
-          ))}
         </div>
       )}
     </motion.div>

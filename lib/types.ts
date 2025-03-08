@@ -1,19 +1,33 @@
+export type ListingStatus = "active" | "pending" | "sold";
+
 export interface Listing {
-  id: string;
+  $id: string;
+  userId: string;
   title: string;
   price: number | null;
   location: string;
+  status: ListingStatus;
+  images: string[];
   category: string;
   subcategory?: string;
-  description?: string;
+  description: string;
   condition?: string;
   brand?: string;
   model?: string;
   year?: string;
   warranty?: string;
-  images: string[];
-  date: string;
-  seller: Seller;
+  createdAt: string;
+  seller?: {
+    id: string;
+    name: string;
+    image: string;
+    memberSince: string;
+    verified: boolean;
+    rating: number;
+    totalListings: number;
+    responseRate: string;
+    responseTime: string;
+  };
   featured?: boolean;
 }
 

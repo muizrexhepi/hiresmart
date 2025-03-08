@@ -26,8 +26,8 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {listings.map((item) => (
           <Link
-            href={`/listing/${item.id}/${generateSlug(item.title)}`}
-            key={item.id}
+            href={`/listing/${item.$id}/${generateSlug(item.title)}`}
+            key={item.$id}
             className="group"
           >
             <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
@@ -63,10 +63,10 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                 <div className="mt-auto flex items-center text-xs text-gray-500">
                   <div className="flex items-center">
                     <Star className="h-3 w-3 text-amber-500 mr-1" />
-                    <span>{item.seller.rating}</span>
+                    <span>{item?.seller?.rating || 5.0}</span>
                   </div>
                   <span className="mx-2">•</span>
-                  <span>{item.date}</span>
+                  <span>{item?.createdAt}</span>
                 </div>
               </div>
             </div>

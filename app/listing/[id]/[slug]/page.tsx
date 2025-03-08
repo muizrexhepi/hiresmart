@@ -8,160 +8,51 @@ import { AdditionalDetails } from "../../(components)/additional-details";
 import { PriceContactBox } from "../../(components)/price-contact-box";
 import { RelatedListings } from "../../(components)/related-listings";
 import { FloatingActionButtons } from "../../(components)/floating-action-button";
-import type { Listing } from "@/lib/types";
+import type { Listing, Seller } from "@/lib/types";
 import { AlertCircle } from "lucide-react";
-
-// Mock listing data that matches the Listing type
-const mockListing: Listing = {
-  id: "3",
-  title: "iPhone 13 Pro - Like New",
-  price: 750,
-  location: "skopje",
-  category: "electronics",
-  subcategory: "phones",
-  description:
-    "Selling my iPhone 13 Pro that I purchased last year. It's in excellent condition with no scratches or dents. The battery health is at 92%. Comes with original box, charger, and unused earphones. AppleCare+ valid until November 2023. Reason for selling: upgraded to iPhone 14 Pro.\n\nSpecs:\n- 128GB Storage\n- Sierra Blue color\n- A15 Bionic chip\n- Pro camera system with 12MP cameras\n- Face ID\n- 5G capable\n\nI'm located in Skopje City Center and prefer in-person exchange. Price is slightly negotiable for serious buyers.",
-  condition: "Used - Like New",
-  brand: "Apple",
-  model: "iPhone 13 Pro",
-  year: "2022",
-  warranty: "AppleCare+ until November 2023",
-  images: [
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800&text=iPhone+Side",
-    "/placeholder.svg?height=600&width=800&text=iPhone+Back",
-    "/placeholder.svg?height=600&width=800&text=iPhone+Box",
-  ],
-  date: "1 day ago",
-  seller: {
-    id: "user123",
-    name: "Alex Johnson",
-    image: "/placeholder.svg?height=100&width=100",
-    memberSince: "March 2020",
-    verified: true,
-    rating: 4.8,
-    totalListings: 12,
-    responseRate: "98%",
-    responseTime: "Within 2 hours",
-  },
-  featured: false,
-};
-
-// Mock related listings that match the Listing type
-const mockRelatedListings: Listing[] = [
-  {
-    id: "4",
-    title: "Samsung Galaxy S22 Ultra",
-    price: 850,
-    location: "skopje",
-    category: "electronics",
-    subcategory: "phones",
-    images: ["/placeholder.svg?height=200&width=300&text=Samsung"],
-    date: "3 days ago",
-    seller: {
-      id: "user456",
-      name: "Maria Smith",
-      image: "/placeholder.svg?height=100&width=100",
-      memberSince: "January 2021",
-      verified: true,
-      rating: 4.9,
-      totalListings: 8,
-      responseRate: "95%",
-      responseTime: "Within 1 hour",
-    },
-  },
-  {
-    id: "5",
-    title: "Google Pixel 7 Pro",
-    price: 700,
-    location: "bitola",
-    category: "electronics",
-    subcategory: "phones",
-    images: ["/placeholder.svg?height=200&width=300&text=Pixel"],
-    date: "5 days ago",
-    seller: {
-      id: "user789",
-      name: "John Doe",
-      image: "/placeholder.svg?height=100&width=100",
-      memberSince: "June 2022",
-      verified: false,
-      rating: 4.5,
-      totalListings: 3,
-      responseRate: "90%",
-      responseTime: "Within 3 hours",
-    },
-  },
-  {
-    id: "6",
-    title: "iPhone 12 Pro Max",
-    price: 600,
-    location: "tetovo",
-    category: "electronics",
-    subcategory: "phones",
-    images: ["/placeholder.svg?height=200&width=300&text=iPhone+12"],
-    date: "1 week ago",
-    seller: {
-      id: "user101",
-      name: "Sarah Johnson",
-      image: "/placeholder.svg?height=100&width=100",
-      memberSince: "April 2020",
-      verified: true,
-      rating: 4.7,
-      totalListings: 15,
-      responseRate: "97%",
-      responseTime: "Within 2 hours",
-    },
-    featured: true,
-  },
-  {
-    id: "7",
-    title: "OnePlus 10 Pro",
-    price: 550,
-    location: "skopje",
-    category: "electronics",
-    subcategory: "phones",
-    images: ["/placeholder.svg?height=200&width=300&text=OnePlus"],
-    date: "2 days ago",
-    seller: {
-      id: "user202",
-      name: "Mike Wilson",
-      image: "/placeholder.svg?height=100&width=100",
-      memberSince: "August 2021",
-      verified: false,
-      rating: 4.3,
-      totalListings: 5,
-      responseRate: "85%",
-      responseTime: "Within 5 hours",
-    },
-  },
-];
+import { getListingById, getListingsByCategory } from "@/app/actions/listings";
+import { getUserById } from "@/app/actions/users";
 
 export default function ListingDetailsPage({
   params,
 }: {
-  params: { id: string; slug: string };
+  params: { id: string; slug?: string };
 }) {
   const [listing, setListing] = useState<Listing | null>(null);
   const [relatedListings, setRelatedListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [seller, setSeller] = useState<Seller | null>(null);
+
+  const fetchSellerDetails = async (userId: string) => {
+    try {
+      console.log({ userId });
+      const userData = await getUserById(userId);
+      if (userData) {
+        setSeller(userData);
+      }
+      console.log({ userData });
+    } catch (err) {
+      console.error("Error fetching seller details:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchListingDetails = async () => {
       try {
         setLoading(true);
 
-        // In a real app, you would fetch the actual listing data
-        // const response = await fetch(`/api/listings/${params.id}`);
-        // if (!response.ok) throw new Error('Failed to fetch listing details');
-        // const data = await response.json();
-        // setListing(data);
+        const fetchedListing = await getListingById(params.id);
 
-        // For now, simulate API fetch with mock data
-        setTimeout(() => {
-          setListing(mockListing);
-          setLoading(false);
-        }, 500);
+        if (!fetchedListing) {
+          throw new Error("Listing not found");
+        }
+
+        setListing(fetchedListing);
+        if (fetchedListing.userId) {
+          fetchSellerDetails(fetchedListing.userId);
+        }
+        setLoading(false);
       } catch (err) {
         setError("Failed to load listing details. Please try again.");
         setLoading(false);
@@ -170,27 +61,28 @@ export default function ListingDetailsPage({
 
     const fetchRelatedListings = async () => {
       try {
-        // In a real app, you would fetch related listings based on category/subcategory
-        // const response = await fetch(`/api/search?category=${mockListing.category}&subcategory=${mockListing.subcategory}&exclude=${params.id}`);
-        // if (!response.ok) throw new Error('Failed to fetch related listings');
-        // const data: ListingsResponse = await response.json();
-        // setRelatedListings(data.listings);
+        if (listing?.category) {
+          const relatedItems = await getListingsByCategory(listing.category);
 
-        // For now, use mock data
-        setTimeout(() => {
-          setRelatedListings(mockRelatedListings);
-        }, 700);
+          const filteredListings = relatedItems.filter(
+            (item) => item.$id !== params.id
+          );
+
+          // Limit to 4 related listings
+          setRelatedListings(filteredListings.slice(0, 4));
+        }
       } catch (err) {
         console.error("Error fetching related listings:", err);
-        // Don't set error state here as this is not critical for the main content
       }
     };
 
     fetchListingDetails();
-    fetchRelatedListings();
-  }, []);
 
-  // Prepare additional details when listing is available
+    if (listing && listing.category) {
+      fetchRelatedListings();
+    }
+  }, [params.id]);
+
   const additionalDetails = listing
     ? [
         { label: "Condition", value: listing.condition },
@@ -203,17 +95,17 @@ export default function ListingDetailsPage({
 
   // Action handlers
   const handleMessage = () => {
-    console.log("Message seller", listing?.seller.id);
+    console.log("Message seller", listing?.seller?.id || listing?.userId);
     // Implement your messaging logic here
   };
 
   const handleCall = () => {
-    console.log("Call seller", listing?.seller.id);
+    console.log("Call seller", listing?.seller?.id || listing?.userId);
     // Implement your call logic here
   };
 
   const handleSave = () => {
-    console.log("Save listing", listing?.id);
+    console.log("Save listing", listing?.$id);
     // Implement your save logic here
   };
 
@@ -228,7 +120,7 @@ export default function ListingDetailsPage({
         .catch((err) => console.error("Error sharing:", err));
     } else {
       // Fallback for browsers that don't support the Web Share API
-      console.log("Share listing", listing?.id);
+      console.log("Share listing", listing?.$id);
       // Copy to clipboard or show a share modal
     }
   };
@@ -289,6 +181,11 @@ export default function ListingDetailsPage({
     );
   }
 
+  // Format the date for display
+  const formattedDate = listing.createdAt
+    ? new Date(listing.createdAt).toLocaleDateString()
+    : "Unknown date";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-8 pb-24">
@@ -298,7 +195,7 @@ export default function ListingDetailsPage({
           category={listing.category}
           subcategory={listing.subcategory}
           location={listing.location}
-          date={listing.date}
+          date={formattedDate}
           featured={listing.featured}
           backUrl={`/search/${listing.category}/${listing.location}`}
         />
@@ -329,8 +226,8 @@ export default function ListingDetailsPage({
             {/* Price and contact */}
             <div className="">
               <PriceContactBox
-                price={listing.price}
-                seller={listing.seller}
+                price={listing.price || 0}
+                seller={seller || undefined} // Remove the non-null assertion
                 onMessage={handleMessage}
                 onCall={handleCall}
                 onSave={handleSave}
@@ -343,14 +240,14 @@ export default function ListingDetailsPage({
         {/* Related listings */}
         {relatedListings.length > 0 && (
           <div className="mt-12">
-            <RelatedListings listings={mockRelatedListings} />
+            <RelatedListings listings={relatedListings} />
           </div>
         )}
       </div>
 
       {/* Floating action buttons (mobile only) */}
       <FloatingActionButtons
-        price={listing.price}
+        price={listing.price || 0}
         onMessage={handleMessage}
         onCall={handleCall}
         onSave={handleSave}

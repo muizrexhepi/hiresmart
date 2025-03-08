@@ -19,7 +19,6 @@ import { useAuth } from "./providers/auth-provider";
 export function Navbar() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { user } = useAuth();
-  console.log({ user });
 
   React.useEffect(() => {
     const handleScroll = () => {

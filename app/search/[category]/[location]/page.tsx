@@ -12,6 +12,13 @@ import { ErrorState } from "../../(components)/error-state";
 import { EmptyState } from "../../(components)/empty-state";
 import { ListingsGrid } from "../../(components)/listing-grid";
 import { Listing, ListingsResponse } from "@/lib/types";
+import {
+  getFilteredListings,
+  getListingsByCategory,
+  getListingsByLocation,
+  searchListings,
+  getAllListings,
+} from "@/app/actions/listings";
 
 const SearchPage = ({
   params,
@@ -20,55 +27,133 @@ const SearchPage = ({
 }) => {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
+  const minPriceParam = searchParams.get("minPrice");
+  const maxPriceParam = searchParams.get("maxPrice");
+  const subcategoryParam = searchParams.get("subcategory") || "";
+
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showFilters, setShowFilters] = useState(true);
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
+  const [priceRange, setPriceRange] = useState({
+    min: minPriceParam ? parseInt(minPriceParam) : "",
+    max: maxPriceParam ? parseInt(maxPriceParam) : "",
+  });
   const [sortBy, setSortBy] = useState("newest");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState(subcategoryParam);
 
   useEffect(() => {
-    // Set `showFilters` based on screen size (true for desktop, false for mobile)
     const handleResize = () => {
       setShowFilters(window.innerWidth >= 768);
     };
 
-    handleResize(); // Initialize on mount
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Update state when URL params change
+  useEffect(() => {
+    if (minPriceParam) {
+      setPriceRange((prev) => ({ ...prev, min: parseInt(minPriceParam) }));
+    }
+
+    if (maxPriceParam) {
+      setPriceRange((prev) => ({ ...prev, max: parseInt(maxPriceParam) }));
+    }
+
+    if (subcategoryParam) {
+      setSelectedSubcategory(subcategoryParam);
+    }
+  }, [minPriceParam, maxPriceParam, subcategoryParam]);
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
-      const paramsObj = {
-        category: params.category || "all",
-        location: params.location || "all",
-        q: query,
-        minPrice: priceRange.min.toString(),
-        maxPrice: priceRange.max.toString(),
-        subcategory: selectedSubcategory || "",
-        sort: sortBy,
-        page: page.toString(),
+      let result: { listings: Listing[]; totalPages: number } = {
+        listings: [],
+        totalPages: 0,
       };
 
-      const paramsString = new URLSearchParams(paramsObj).toString();
-      const response = await fetch(`/api/search`);
+      if (query) {
+        // Search by query takes precedence
+        const searchResults = await searchListings(query);
+        result = {
+          listings: searchResults,
+          totalPages: Math.ceil(searchResults.length / 10),
+        };
+      } else if (
+        (params.category === "all" || !params.category) &&
+        (params.location === "all" || !params.location) &&
+        !selectedSubcategory &&
+        !priceRange.min &&
+        !priceRange.max
+      ) {
+        // If everything is "all" and no filters, get all listings
+        const allListings = await getAllListings(page, 10);
+        result = {
+          listings: allListings.listings,
+          totalPages: allListings.totalPages,
+        };
+      } else if (params.category && params.category !== "all") {
+        if (params.location && params.location !== "all") {
+          // Both category and location specified
+          result = await getFilteredListings({
+            categoryId: params.category,
+            subcategoryId: selectedSubcategory,
+            location: params.location,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max,
+            page: page,
+            limit: 10,
+            sortBy: sortBy,
+          });
+        } else {
+          // Only category is specified
+          result = await getFilteredListings({
+            categoryId: params.category,
+            subcategoryId: selectedSubcategory,
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max,
+            page: page,
+            limit: 10,
+            sortBy: sortBy,
+          });
+        }
+      } else if (params.location && params.location !== "all") {
+        // Only location is specified
+        result = await getFilteredListings({
+          location: params.location,
+          subcategoryId: selectedSubcategory,
+          minPrice: priceRange.min,
+          maxPrice: priceRange.max,
+          page: page,
+          limit: 10,
+          sortBy: sortBy,
+        });
+      } else {
+        // Only filters are specified
+        result = await getFilteredListings({
+          subcategoryId: selectedSubcategory,
+          minPrice: priceRange.min,
+          maxPrice: priceRange.max,
+          page: page,
+          limit: 10,
+          sortBy: sortBy,
+        });
+      }
 
-      if (!response.ok) throw new Error("Failed to fetch listings");
-
-      const data: ListingsResponse = await response.json();
-      console.log({ data });
       setListings((prevListings) =>
-        page === 1 ? data.listings : [...prevListings, ...data.listings]
+        page === 1 ? result.listings : [...prevListings, ...result.listings]
       );
-      setTotalPages(data.totalPages);
+      setTotalPages(result.totalPages || 1);
     } catch (err) {
+      console.error("Error fetching listings:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -77,7 +162,8 @@ const SearchPage = ({
     params.category,
     params.location,
     query,
-    priceRange,
+    priceRange.min,
+    priceRange.max,
     selectedSubcategory,
     sortBy,
     page,
@@ -111,6 +197,19 @@ const SearchPage = ({
     setShowFilters((prev) => !prev);
   };
 
+  const handlePriceRangeChange = (type: "min" | "max", value: string) => {
+    setPriceRange((prev) => ({
+      ...prev,
+      [type]: value === "" ? "" : parseInt(value),
+    }));
+    setPage(1);
+  };
+
+  const handleSubcategoryChange = (subcategory: string) => {
+    setSelectedSubcategory(subcategory);
+    setPage(1);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -124,7 +223,16 @@ const SearchPage = ({
         <div className="flex flex-col md:flex-row gap-6">
           {/* Filters sidebar - hidden on mobile unless toggled */}
           <AnimatePresence>
-            <FiltersSidebar />
+            {showFilters && (
+              <FiltersSidebar
+                selectedCategory={params.category}
+                selectedSubcategory={selectedSubcategory}
+                onSubcategoryChange={handleSubcategoryChange}
+                priceRange={priceRange}
+                onPriceRangeChange={handlePriceRangeChange}
+                selectedLocation={params.location}
+              />
+            )}
           </AnimatePresence>
 
           {/* Results section */}
@@ -155,13 +263,20 @@ const SearchPage = ({
             )}
 
             {/* Load More Button */}
-            {!loading && page < totalPages && (
+            {!loading && !error && page < totalPages && (
               <button
                 onClick={handleLoadMore}
-                className="w-full mt-4 p-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
+                className="w-full mt-4 p-3 bg-emerald-600 text-white font-semibold rounded-md hover:bg-emerald-700 transition-colors"
               >
                 Load More
               </button>
+            )}
+
+            {/* Loading more indicator */}
+            {loading && page > 1 && (
+              <div className="flex justify-center my-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+              </div>
             )}
           </div>
         </div>

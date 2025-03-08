@@ -15,7 +15,7 @@ export function ListingsGrid({ listings, onLoadMore }: ListingsGridProps) {
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <AnimatePresence>
         {listings.map((listing) => (
-          <ListingCard key={listing.id} listing={listing} />
+          <ListingCard key={listing.$id} listing={listing} />
         ))}
       </AnimatePresence>
 

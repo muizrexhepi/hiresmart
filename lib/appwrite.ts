@@ -9,16 +9,24 @@ import {
 } from "appwrite";
 
 export const client = new Client()
-  .setEndpoint("https://cloud.appwrite.io/v1") // Use your endpoint if self-hosted
-  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!); // Project ID from Appwrite console
+  .setEndpoint("https://cloud.appwrite.io/v1")
+  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
 
-// Export instances of Appwrite services
+export const appwriteConfig = {
+  endpoint: "https://cloud.appwrite.io/v1",
+  projectId: process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "",
+  databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "",
+  usersCollectionId: process.env.NEXT_PUBLIC_APPWRITE_USERS_COLLECTION_ID || "",
+  listingsCollectionId:
+    process.env.NEXT_PUBLIC_APPWRITE_LISTINGS_COLLECTION_ID || "",
+  storageId: process.env.NEXT_PUBLIC_APPWRITE_USER_LISTINGS_STORAGE_ID || "",
+};
+
 export const account = new Account(client);
 export const databases = new Databases(client);
 export const storage = new Storage(client);
 export const functions = new Functions(client);
 
-// Collection IDs - store all your collection IDs here
 export const Collections = {
   USERS: "users",
   SERVICES: "services",
@@ -26,17 +34,14 @@ export const Collections = {
   REVIEWS: "reviews",
 } as const;
 
-// Database ID
 export const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
 
-// Bucket IDs for different types of files
 export const Buckets = {
   AVATARS: process.env.NEXT_PUBLIC_APPWRITE_USER_PROFILE_PICTURE_BUCKET_ID!,
   SERVICE_IMAGES: "service-images",
   ATTACHMENTS: "attachments",
 } as const;
 
-// Helper function to check if user is authenticated
 export async function isAuthenticated() {
   try {
     const session = await account.getSession("current");
@@ -46,7 +51,6 @@ export async function isAuthenticated() {
   }
 }
 
-// Helper function to get current user
 export async function getCurrentUser() {
   try {
     return await account.get();
@@ -55,7 +59,6 @@ export async function getCurrentUser() {
   }
 }
 
-// Type for user roles
 export type UserRole = "buyer" | "seller" | "admin";
 
 // Authentication helper functions

@@ -17,15 +17,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, Upload } from "lucide-react";
-import { account, storage, Buckets } from "@/lib/appwrite";
+import { ArrowLeft, Loader2, Upload } from "lucide-react";
+import {
+  account,
+  storage,
+  Buckets,
+  appwriteConfig,
+  databases,
+} from "@/lib/appwrite";
 import { ID } from "appwrite";
 import { useAuth } from "@/components/providers/auth-provider";
 import { toast } from "sonner";
+import { updateUser } from "@/app/actions/users"; // Import the updateUser function
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { user, isLoading: loading } = useAuth();
+  const { user, isLoading: loading, refresh } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -34,6 +41,7 @@ export default function EditProfilePage() {
     location: "",
     bio: "",
     avatar: "/placeholder.svg?height=100&width=100",
+    memberSince: "",
   });
 
   // Load user data when available
@@ -46,7 +54,32 @@ export default function EditProfilePage() {
         location: user.prefs?.location || "",
         bio: user.prefs?.bio || "",
         avatar: user.prefs?.avatar || "/placeholder.svg?height=100&width=100",
+        memberSince: user.prefs?.memberSince || new Date().toLocaleDateString(),
       });
+
+      // Try to fetch additional user data from users collection
+      const fetchUserData = async () => {
+        try {
+          const response = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            user.$id
+          );
+
+          // Update form data with any additional fields from the collection
+          setFormData((prev) => ({
+            ...prev,
+            name: prev.name || response.name,
+            avatar: prev.avatar || response.image,
+            memberSince: response.memberSince || prev.memberSince,
+          }));
+        } catch (error) {
+          console.error("Error fetching user data from collection:", error);
+          // If the user doesn't exist in the collection yet, that's ok
+        }
+      };
+
+      fetchUserData();
     }
   }, [user, loading]);
 
@@ -63,10 +96,8 @@ export default function EditProfilePage() {
 
     setIsLoading(true);
 
-    // In the handleSubmit function, add proper error logging
     try {
-      // Update name
-      console.log({ formData });
+      // Update name in the account
       if (user.name !== formData.name) {
         await account.updateName(formData.name);
       }
@@ -83,17 +114,32 @@ export default function EditProfilePage() {
         }
       }
 
-      // Make sure to create a new prefs object that includes ALL existing preferences
+      // Update account preferences
       const prefs = {
         ...(user.prefs || {}),
         location: formData.location,
         bio: formData.bio,
-        // Keep the avatar if it was already set
         avatar: formData.avatar || user.prefs?.avatar,
+        memberSince: formData.memberSince || new Date().toLocaleDateString(),
       };
 
-      console.log("Updating preferences:", prefs);
       await account.updatePrefs(prefs);
+
+      // Now update the user collection document
+      try {
+        await updateUser(user.$id, {
+          name: formData.name,
+          image: formData.avatar || "/placeholder.svg?height=48&width=48",
+          // Keep other fields as they are or set defaults if needed
+          memberSince: formData.memberSince || new Date().toLocaleDateString(),
+        });
+      } catch (userUpdateError) {
+        console.error("Error updating user collection:", userUpdateError);
+        toast("Collection update failed", {
+          description:
+            "Your profile was updated but there was an error updating your public profile.",
+        });
+      }
 
       toast("Profile updated", {
         description: "Your profile has been successfully updated.",
@@ -108,6 +154,7 @@ export default function EditProfilePage() {
       });
     } finally {
       setIsLoading(false);
+      await refresh();
     }
   };
 
@@ -119,20 +166,15 @@ export default function EditProfilePage() {
 
     try {
       // Upload file to Appwrite Storage
-      // In the handleAvatarUpload function, replace the bucket ID reference with your constant
       const fileUpload = await storage.createFile(
-        Buckets.AVATARS, // Use your constant instead of the environment variable
+        Buckets.AVATARS,
         ID.unique(),
         file
       );
 
       // Get file preview URL
-      // Get file preview URL
       const fileUrl = storage
-        .getFilePreview(
-          Buckets.AVATARS, // Use your constant here too
-          fileUpload.$id
-        )
+        .getFilePreview(Buckets.AVATARS, fileUpload.$id)
         .toString();
 
       // Update avatar in form data
@@ -145,6 +187,18 @@ export default function EditProfilePage() {
           avatar: fileUrl,
         };
         await account.updatePrefs(prefs);
+
+        // Also update the user collection
+        try {
+          await updateUser(user.$id, {
+            image: fileUrl,
+          });
+        } catch (userUpdateError) {
+          console.error(
+            "Error updating user image in collection:",
+            userUpdateError
+          );
+        }
       }
 
       toast("Avatar updated", {
@@ -303,7 +357,11 @@ export default function EditProfilePage() {
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Save Changes"}
+                {isLoading ? (
+                  <Loader2 className="animate-spin size-5" />
+                ) : (
+                  "Save Changes"
+                )}
               </Button>
             </CardFooter>
           </form>

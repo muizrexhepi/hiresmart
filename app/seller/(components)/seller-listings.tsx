@@ -6,20 +6,10 @@ import Image from "next/image";
 import { MapPin, Tag } from "lucide-react";
 import { LOCATIONS } from "@/constants/locations";
 import { CATEGORIES } from "@/constants/categories";
-
-export interface SellerListing {
-  id: string;
-  title: string;
-  price: number;
-  location: string;
-  category: string;
-  subcategory?: string;
-  image?: string;
-  date: string;
-}
+import { Listing } from "@/lib/types";
 
 interface SellerListingsProps {
-  listings: SellerListing[];
+  listings: Listing[];
   sellerId: string;
 }
 
@@ -62,9 +52,9 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
             );
 
             return (
-              <motion.div key={listing.id} variants={itemVariants}>
+              <motion.div key={listing.$id} variants={itemVariants}>
                 <Link
-                  href={`/listing/${listing.id}/${listing.title
+                  href={`/listing/${listing.$id}/${listing.title
                     .toLowerCase()
                     .replace(/\s+/g, "-")}`}
                 >
@@ -72,7 +62,7 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
                     <div className="relative h-48 w-full">
                       <Image
                         src={
-                          listing.image ||
+                          listing.images[0] ||
                           "/placeholder.svg?height=200&width=300"
                         }
                         alt={listing.title}
@@ -85,7 +75,8 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
                         {listing.title}
                       </h3>
                       <div className="text-lg font-bold text-emerald-600 mb-2">
-                        ${listing.price.toLocaleString()}
+                        $
+                        {listing.price ? listing.price.toLocaleString() : "N/A"}
                       </div>
                       <div className="mt-auto flex flex-wrap gap-2 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
@@ -105,6 +96,11 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
                               {listingCategory.title}
                             </span>
                           </div>
+                        )}
+                        {listing.status !== "active" && (
+                          <span className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs capitalize">
+                            {listing.status}
+                          </span>
                         )}
                       </div>
                     </div>

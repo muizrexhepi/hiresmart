@@ -42,36 +42,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useRouter } from "next/navigation";
-
-type ListingStatus = "active" | "pending" | "sold";
-
-interface Listing {
-  id: string;
-  title: string;
-  price: number | null;
-  location: string;
-  status: ListingStatus;
-  image: string;
-  category: string;
-  createdAt: string;
-}
-
-// Mock listings data
-const mockListings: Listing[] = [
-  {
-    id: "1",
-    title: "2019 Toyota Camry - Excellent Condition",
-    price: 18500,
-    location: "Brooklyn, NY",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300&text=Toyota+Camry",
-    category: "Vehicles",
-    createdAt: "2023-10-15",
-  },
-];
+import { Listing, ListingStatus } from "@/lib/types";
+import { deleteListing, getUserListings } from "../actions/listings";
 
 export default function ProfilePage() {
-  const [listings, setListings] = useState<Listing[]>(mockListings);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [listingToDelete, setListingToDelete] = useState<string | null>(null);
@@ -79,6 +55,27 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+
+  // Fetch user listings
+  useEffect(() => {
+    const fetchListings = async () => {
+      if (user?.$id) {
+        setIsLoading(true);
+        try {
+          const userListings = await getUserListings(user.$id);
+          setListings(userListings);
+        } catch (error) {
+          console.error("Error fetching listings:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    if (isMounted && user) {
+      fetchListings();
+    }
+  }, [user, isMounted]);
 
   // Use useEffect to ensure we're only running this client-side
   useEffect(() => {
@@ -118,8 +115,8 @@ export default function ProfilePage() {
     const matchesTab = activeTab === "all" || listing.status === activeTab;
     const matchesSearch =
       listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing?.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.category.toLowerCase().includes(searchQuery.toLowerCase());
+      listing?.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      listing.category?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -137,11 +134,23 @@ export default function ProfilePage() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (listingToDelete) {
-      setListings(listings.filter((listing) => listing.id !== listingToDelete));
-      setDeleteDialogOpen(false);
-      setListingToDelete(null);
+      setIsLoading(true);
+      try {
+        const success = await deleteListing(listingToDelete);
+        if (success) {
+          setListings(
+            listings.filter((listing) => listing.$id !== listingToDelete)
+          );
+        }
+      } catch (error) {
+        console.error("Error deleting listing:", error);
+      } finally {
+        setIsLoading(false);
+        setDeleteDialogOpen(false);
+        setListingToDelete(null);
+      }
     }
   };
 
@@ -262,35 +271,51 @@ export default function ProfilePage() {
             </TabsList>
 
             <TabsContent value="all" className="mt-6">
-              <ListingsGrid
-                listings={filteredListings}
-                onDelete={handleDeleteClick}
-                getStatusBadge={getStatusBadge}
-              />
+              {isLoading ? (
+                <LoadingState />
+              ) : (
+                <ListingsGrid
+                  listings={filteredListings}
+                  onDelete={handleDeleteClick}
+                  getStatusBadge={getStatusBadge}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="active" className="mt-6">
-              <ListingsGrid
-                listings={filteredListings}
-                onDelete={handleDeleteClick}
-                getStatusBadge={getStatusBadge}
-              />
+              {isLoading ? (
+                <LoadingState />
+              ) : (
+                <ListingsGrid
+                  listings={filteredListings}
+                  onDelete={handleDeleteClick}
+                  getStatusBadge={getStatusBadge}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="pending" className="mt-6">
-              <ListingsGrid
-                listings={filteredListings}
-                onDelete={handleDeleteClick}
-                getStatusBadge={getStatusBadge}
-              />
+              {isLoading ? (
+                <LoadingState />
+              ) : (
+                <ListingsGrid
+                  listings={filteredListings}
+                  onDelete={handleDeleteClick}
+                  getStatusBadge={getStatusBadge}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="sold" className="mt-6">
-              <ListingsGrid
-                listings={filteredListings}
-                onDelete={handleDeleteClick}
-                getStatusBadge={getStatusBadge}
-              />
+              {isLoading ? (
+                <LoadingState />
+              ) : (
+                <ListingsGrid
+                  listings={filteredListings}
+                  onDelete={handleDeleteClick}
+                  getStatusBadge={getStatusBadge}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -321,6 +346,24 @@ export default function ProfilePage() {
   );
 }
 
+function LoadingState() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[1, 2, 3].map((i) => (
+        <Card key={i} className="overflow-hidden h-full">
+          <div className="h-48 bg-gray-200 animate-pulse" />
+          <CardContent className="p-4">
+            <div className="w-3/4 h-5 bg-gray-200 animate-pulse mb-2" />
+            <div className="w-1/2 h-6 bg-gray-200 animate-pulse mb-4" />
+            <div className="w-full h-4 bg-gray-200 animate-pulse mb-2" />
+            <div className="w-1/3 h-3 bg-gray-200 animate-pulse" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 // Listings Grid Component
 interface ListingsGridProps {
   listings: Listing[];
@@ -334,6 +377,7 @@ function ListingsGrid({
   getStatusBadge,
 }: ListingsGridProps) {
   // Empty state
+  console.log({ listings });
   if (listings.length === 0) {
     return (
       <motion.div
@@ -364,7 +408,7 @@ function ListingsGrid({
       <AnimatePresence>
         {listings.map((listing) => (
           <motion.div
-            key={listing.id}
+            key={listing.$id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -373,11 +417,10 @@ function ListingsGrid({
           >
             <Card className="overflow-hidden h-full hover:shadow-md transition-shadow">
               <div className="relative h-48">
-                <Image
-                  src={listing.image || "/placeholder.svg"}
+                <img
+                  src={listing.images?.[0]}
                   alt={listing.title}
-                  fill
-                  className="object-cover"
+                  className="h-full w-full object-cover"
                 />
                 <div className="absolute top-2 right-2">
                   {getStatusBadge(listing.status)}
@@ -397,14 +440,14 @@ function ListingsGrid({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <Link href={`/listing/${listing.id}/edit`}>
+                      <Link href={`/listing/${listing.$id}/edit`}>
                         <DropdownMenuItem>
                           <Edit2 className="h-4 w-4 mr-2" /> Edit
                         </DropdownMenuItem>
                       </Link>
                       <DropdownMenuItem
                         className="text-red-600 focus:text-red-600"
-                        onClick={() => onDelete(listing.id)}
+                        onClick={() => onDelete(listing.$id)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" /> Delete
                       </DropdownMenuItem>
@@ -413,17 +456,17 @@ function ListingsGrid({
                 </div>
 
                 <div className="text-lg font-bold text-gray-900 mb-2">
-                  {listing.price !== null
-                    ? `$${listing.price.toLocaleString()}`
+                  {listing.price !== null && listing.price !== undefined
+                    ? `$${Number(listing.price).toLocaleString()}`
                     : "Contact for price"}
                 </div>
 
                 <div className="flex flex-wrap gap-2 text-sm text-gray-500 mb-2">
                   <div className="flex items-center">
                     <MapPin className="h-3 w-3 mr-1" />
-                    {listing?.location ? listing?.location : "Not specified"}
+                    {listing?.location ? listing.location : "Not specified"}
                   </div>
-                  <div>• {listing.category}</div>
+                  {listing.category && <div>• {listing.category}</div>}
                 </div>
 
                 <div className="text-xs text-gray-400">

@@ -29,7 +29,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
       whileHover={{ y: -5 }}
       className="h-full"
     >
-      <Link href={`/listing/${listing.id}/${slug}`}>
+      <Link href={`/listing/${listing.$id}/${slug}`}>
         <Card className="overflow-hidden h-full hover:shadow-md transition-shadow">
           <div className="relative h-48">
             <Image
@@ -69,7 +69,9 @@ export default function ListingCard({ listing }: ListingCardProps) {
               </div>
             </div>
 
-            <div className="text-xs text-gray-400">Listed {listing.date}</div>
+            <div className="text-xs text-gray-400">
+              Listed {listing.createdAt}
+            </div>
           </CardContent>
         </Card>
       </Link>

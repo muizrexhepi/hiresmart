@@ -14,7 +14,7 @@ interface ListingCardProps {
 
 export function ListingCard({ listing }: ListingCardProps) {
   const router = useRouter();
-
+  console.log({ listing });
   // Generate SEO-friendly slug
   const generateSlug = (title: string) =>
     title
@@ -24,7 +24,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
   const handleClick = () => {
     const slug = generateSlug(listing.title);
-    router.push(`/listing/${listing.id}/${slug}`);
+    router.push(`/listing/${listing.$id}/${slug}`);
   };
 
   // Find category and location info
@@ -39,6 +39,21 @@ export function ListingCard({ listing }: ListingCardProps) {
     .filter(Boolean)
     .join(" | ");
 
+  // Format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+
+    return date.toLocaleDateString();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,7 +61,7 @@ export function ListingCard({ listing }: ListingCardProps) {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
       className="p-4 border rounded-lg hover:shadow-md transition-all cursor-pointer bg-white"
-      onClick={handleClick} // Navigate when clicked
+      onClick={handleClick}
     >
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/3 h-48 bg-gray-100 rounded-md overflow-hidden relative">
@@ -59,6 +74,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             src={listing?.images[0] || "/placeholder.svg?height=200&width=300"}
             alt={listing.title}
             fill
+            unoptimized
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform hover:scale-105"
             priority={listing.featured}
@@ -70,7 +86,7 @@ export function ListingCard({ listing }: ListingCardProps) {
               {listing.title}
             </h3>
             {/* Seller verification badge */}
-            {listing.seller.verified && (
+            {listing.seller?.verified && (
               <span className="text-emerald-600 flex items-center text-sm font-medium">
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Verified
@@ -107,30 +123,36 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
 
           <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-gray-400">Listed {listing.date}</div>
+            <div className="text-sm text-gray-400">
+              Listed {formatDate(listing.createdAt)}
+            </div>
 
             {/* Seller info */}
-            <div className="flex items-center gap-2">
-              <div className="relative h-8 w-8 rounded-full overflow-hidden">
-                <Image
-                  src={
-                    listing.seller.image ||
-                    "/placeholder.svg?height=32&width=32"
-                  }
-                  alt={listing.seller.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <div className="text-sm font-medium">{listing.seller.name}</div>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Star className="h-3 w-3 text-amber-500 mr-1" />
-                  {listing.seller.rating} • {listing.seller.totalListings}{" "}
-                  listings
+            {listing.seller && (
+              <div className="flex items-center gap-2">
+                <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                  <Image
+                    src={
+                      listing.seller.image ||
+                      "/placeholder.svg?height=32&width=32"
+                    }
+                    alt={listing.seller.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">
+                    {listing.seller.name}
+                  </div>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Star className="h-3 w-3 text-amber-500 mr-1" />
+                    {listing.seller.rating} • {listing.seller.totalListings}{" "}
+                    listings
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

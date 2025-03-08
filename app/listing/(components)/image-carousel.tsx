@@ -31,7 +31,8 @@ export function ImageCarousel({ images, title }: ImageCarouselProps) {
           src={images[currentImageIndex] || "/placeholder.svg"}
           alt={title}
           fill
-          className="object-contain"
+          unoptimized
+          className="object-cover"
         />
 
         {/* Navigation arrows */}
@@ -72,6 +73,7 @@ export function ImageCarousel({ images, title }: ImageCarouselProps) {
               src={image || "/placeholder.svg"}
               alt={`Thumbnail ${index + 1}`}
               fill
+              unoptimized
               className="object-cover"
             />
           </button>

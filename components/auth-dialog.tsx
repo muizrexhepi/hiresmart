@@ -25,6 +25,7 @@ import {
 import { account, authHelper } from "@/lib/appwrite";
 import { useAuth } from "./providers/auth-provider";
 import { useMediaQuery } from "./hooks/use-media-query";
+import { createUserOnFirstLogin } from "@/app/actions/users";
 
 export function AuthDialog() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -45,7 +46,6 @@ export function AuthDialog() {
       const res = await authHelper.signInWithEmail(email);
       setUserId(res.userId);
       setIsVerification(true);
-      await refresh();
     } catch (error) {
       console.error("Error sending verification code:", error);
     } finally {
@@ -57,11 +57,12 @@ export function AuthDialog() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      console.log({ userId, otp });
       await account.createSession(userId, otp);
+      await createUserOnFirstLogin(userId, email);
       setShowDialog(false);
       setShowSheet(false);
       resetFlow();
+      await refresh();
     } catch (error) {
       console.error("Error verifying code:", error);
     } finally {
