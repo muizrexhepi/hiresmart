@@ -1,36 +1,40 @@
 import { Tag } from "lucide-react";
 import Pagination from "./pagination";
 import ListingCard from "./listing-card";
-import { fetchListings } from "@/app/actions/listings";
+import { Listing } from "@/lib/types";
+import { getFilteredListings } from "@/app/actions/listings";
 
 interface ListingsGridProps {
-  categoryId: string;
+  categoryId?: string;
   subcategoryId?: string;
-  sort?: string;
+  sortBy?: string;
   minPrice?: number;
   maxPrice?: number;
   location?: string;
   page?: number;
+  limit?: number;
 }
 
 export default async function ListingsGrid({
   categoryId,
   subcategoryId,
-  sort = "newest",
+  sortBy = "newest",
   minPrice,
   maxPrice,
   location,
   page = 1,
+  limit = 10,
 }: ListingsGridProps) {
-  // Fetch listings with the given filters
-  const { listings, totalPages } = await fetchListings({
+  // Fetch listings with the given filters using the getFilteredListings function
+  const { listings, totalPages } = await getFilteredListings({
     categoryId,
     subcategoryId,
-    sort,
     minPrice,
     maxPrice,
     location,
     page,
+    limit,
+    sortBy,
   });
 
   // If no listings found
@@ -63,7 +67,7 @@ export default async function ListingsGrid({
       {/* Listings grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {listings.map((listing) => (
-          <ListingCard key={listing.id} listing={listing} />
+          <ListingCard key={listing.$id} listing={listing} />
         ))}
       </div>
 
@@ -74,7 +78,7 @@ export default async function ListingsGrid({
           totalPages={totalPages}
           categoryId={categoryId}
           subcategoryId={subcategoryId}
-          sort={sort}
+          sort={sortBy}
           minPrice={minPrice}
           maxPrice={maxPrice}
           location={location}

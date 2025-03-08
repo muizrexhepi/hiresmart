@@ -92,7 +92,8 @@ export default function SellerProfilePage({
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <p className="text-gray-500 mb-2">Seller not found</p>
           <p className="text-sm text-gray-400">
-            The seller you're looking for might not exist or has been removed.
+            The seller you&lsquo;re looking for might not exist or has been
+            removed.
           </p>
         </div>
       </div>

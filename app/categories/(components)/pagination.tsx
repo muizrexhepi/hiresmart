@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  categoryId: string;
+  categoryId?: string;
   subcategoryId?: string;
   sort?: string;
   minPrice?: number;
@@ -32,22 +32,36 @@ export default function Pagination({
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams();
 
+    // Always include the category if provided
+    if (categoryId) {
+      params.set("category", categoryId);
+    }
+
+    // Include subcategory if provided
+    if (subcategoryId) {
+      params.set("subcategory", subcategoryId);
+    }
+
+    // Set page parameter (only if not page 1)
     if (page !== 1) {
       params.set("page", page.toString());
     }
 
+    // Sort parameter (only if not default)
     if (sort && sort !== "newest") {
       params.set("sort", sort);
     }
 
-    if (minPrice && minPrice > 0) {
+    // Price filters
+    if (minPrice !== undefined && minPrice > 0) {
       params.set("minPrice", minPrice.toString());
     }
 
-    if (maxPrice && maxPrice < 10000) {
+    if (maxPrice !== undefined && maxPrice < 10000) {
       params.set("maxPrice", maxPrice.toString());
     }
 
+    // Location filter
     if (location) {
       params.set("location", location);
     }
@@ -140,7 +154,7 @@ export default function Pagination({
         <Button
           variant="outline"
           size="icon"
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || totalPages === 0}
           onClick={() => router.push(createPageUrl(currentPage + 1))}
         >
           <ChevronRight className="h-4 w-4" />
