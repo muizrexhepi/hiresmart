@@ -7,7 +7,7 @@ import { LOCATIONS } from "@/constants/locations";
 import { motion } from "framer-motion";
 import { Filter, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Sheet,
   SheetContent,
@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 interface FiltersSidebarProps {
   selectedCategory: string;
@@ -50,6 +51,11 @@ export function FiltersSidebar({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // References for price inputs to maintain focus
+  const minPriceInputRef = useRef<HTMLInputElement>(null);
+  const maxPriceInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize with props values or fallback to searchParams
   const [currentCategory, setCurrentCategory] = useState(
@@ -64,16 +70,22 @@ export function FiltersSidebar({
     selectedLocation || searchParams.get("location") || "all"
   );
 
-  // Use external price range if provided, otherwise initialize from searchParams
-  const [internalPriceRange, setInternalPriceRange] = useState({
+  // Store local price range values that won't trigger refetching
+  const [localPriceRange, setLocalPriceRange] = useState({
     min: externalPriceRange?.min || searchParams.get("minPrice") || "",
     max: externalPriceRange?.max || searchParams.get("maxPrice") || "",
   });
 
-  // Determine which price range to use
-  const priceRange = externalPriceRange || internalPriceRange;
+  // Count active filters
+  const activeFilterCount = [
+    currentCategory !== "all" ? 1 : 0,
+    currentSubcategory ? 1 : 0,
+    currentLocation !== "all" ? 1 : 0,
+    localPriceRange.min ? 1 : 0,
+    localPriceRange.max ? 1 : 0,
+  ].reduce((sum, val) => sum + val, 0);
 
-  // Update internal state when props change
+  // Update internal state when props change, but don't update price range during typing
   useEffect(() => {
     if (selectedCategory) {
       setCurrentCategory(selectedCategory);
@@ -84,18 +96,31 @@ export function FiltersSidebar({
     if (selectedLocation) {
       setCurrentLocation(selectedLocation);
     }
-  }, [selectedCategory, selectedSubcategory, selectedLocation]);
+
+    // Only update price range from props during initialization or when not focused
+    const minInputIsFocused =
+      document.activeElement === minPriceInputRef.current;
+    const maxInputIsFocused =
+      document.activeElement === maxPriceInputRef.current;
+
+    if (externalPriceRange && !minInputIsFocused && !maxInputIsFocused) {
+      setLocalPriceRange({
+        min: externalPriceRange.min,
+        max: externalPriceRange.max,
+      });
+    }
+  }, [
+    selectedCategory,
+    selectedSubcategory,
+    selectedLocation,
+    externalPriceRange,
+  ]);
 
   const categoryObj = CATEGORIES.find((cat) => cat.id === currentCategory);
 
+  // Handle price range input changes locally without calling any external handlers
   const handlePriceRangeChange = (type: "min" | "max", value: string) => {
-    // If external handler is provided, use it
-    if (onPriceRangeChange) {
-      onPriceRangeChange(type, value);
-    } else {
-      // Otherwise, update internal state
-      setInternalPriceRange((prev) => ({ ...prev, [type]: value }));
-    }
+    setLocalPriceRange((prev) => ({ ...prev, [type]: value }));
   };
 
   const handleCategoryChange = (category: string) => {
@@ -116,16 +141,33 @@ export function FiltersSidebar({
     setCurrentLocation(location);
   };
 
+  // Only apply price range changes when form is submitted
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Now update the external price range handler if it exists
+    if (onPriceRangeChange) {
+      if (
+        localPriceRange.min.toString() !==
+        (externalPriceRange?.min || "").toString()
+      ) {
+        onPriceRangeChange("min", localPriceRange.min.toString());
+      }
+      if (
+        localPriceRange.max.toString() !==
+        (externalPriceRange?.max || "").toString()
+      ) {
+        onPriceRangeChange("max", localPriceRange.max.toString());
+      }
+    }
+
     const params = new URLSearchParams();
 
-    if (priceRange.min) {
-      params.append("minPrice", priceRange.min.toString());
+    if (localPriceRange.min) {
+      params.append("minPrice", localPriceRange.min.toString());
     }
-    if (priceRange.max) {
-      params.append("maxPrice", priceRange.max.toString());
+    if (localPriceRange.max) {
+      params.append("maxPrice", localPriceRange.max.toString());
     }
     if (currentSubcategory) {
       params.append("subcategory", currentSubcategory);
@@ -139,12 +181,35 @@ export function FiltersSidebar({
     setIsOpen(false);
   };
 
+  const handleClearFilters = () => {
+    setCurrentCategory("all");
+    setCurrentSubcategory("");
+    setCurrentLocation("all");
+    setLocalPriceRange({ min: "", max: "" });
+
+    // Only update external state on explicit actions like clear
+    if (onPriceRangeChange) {
+      onPriceRangeChange("min", "");
+      onPriceRangeChange("max", "");
+    }
+
+    router.push("/search/all/all");
+    setIsOpen(false);
+  };
+
   // Shared filter form component to avoid duplication
   const FilterForm = ({ isMobile = false }) => (
-    <form onSubmit={handleApplyFilters} className="space-y-6">
+    <form ref={formRef} onSubmit={handleApplyFilters} className="space-y-6">
       {isMobile && (
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-lg">Filters</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-lg">Filters</h3>
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="font-semibold">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </div>
           <SheetClose asChild>
             <Button variant="ghost" size="sm">
               <X className="h-4 w-4" />
@@ -154,16 +219,42 @@ export function FiltersSidebar({
       )}
 
       {!isMobile && (
-        <div className="mb-4">
-          <h3 className="font-bold text-lg">Filters</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-lg">Filters</h3>
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="font-semibold">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </div>
+          {activeFilterCount > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleClearFilters}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Clear all
+            </Button>
+          )}
         </div>
       )}
 
       {/* Category filter */}
       <div className="space-y-2">
-        <Label htmlFor="category">Category</Label>
+        <Label
+          htmlFor={`category-${isMobile ? "mobile" : "desktop"}`}
+          className="text-sm font-medium"
+        >
+          Category
+        </Label>
         <Select value={currentCategory} onValueChange={handleCategoryChange}>
-          <SelectTrigger id="category" className="w-full">
+          <SelectTrigger
+            id={`category-${isMobile ? "mobile" : "desktop"}`}
+            className="w-full"
+          >
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
@@ -177,13 +268,21 @@ export function FiltersSidebar({
         </Select>
       </div>
 
-      <Separator />
+      <Separator className="my-4" />
 
       {/* Location filter */}
       <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
+        <Label
+          htmlFor={`location-${isMobile ? "mobile" : "desktop"}`}
+          className="text-sm font-medium"
+        >
+          Location
+        </Label>
         <Select value={currentLocation} onValueChange={handleLocationChange}>
-          <SelectTrigger id="location" className="w-full">
+          <SelectTrigger
+            id={`location-${isMobile ? "mobile" : "desktop"}`}
+            className="w-full"
+          >
             <SelectValue placeholder="Select location" />
           </SelectTrigger>
           <SelectContent>
@@ -197,77 +296,85 @@ export function FiltersSidebar({
         </Select>
       </div>
 
-      <Separator />
+      <Separator className="my-4" />
 
       {/* Subcategory filter */}
-      {categoryObj && categoryObj.subCategories.length > 0 && (
-        <>
-          <div className="space-y-2">
-            <Label htmlFor="subcategory">Subcategory</Label>
-            <Select
-              value={currentSubcategory}
-              onValueChange={handleSubcategoryChange}
-            >
-              <SelectTrigger id="subcategory" className="w-full">
-                <SelectValue placeholder="Select subcategory" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Subcategories</SelectItem>
-                {categoryObj.subCategories.map((subcat) => (
-                  <SelectItem key={subcat.id} value={subcat.id}>
-                    {subcat.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Separator />
-        </>
-      )}
+      {categoryObj &&
+        categoryObj.subCategories &&
+        categoryObj.subCategories.length > 0 && (
+          <>
+            <div className="space-y-2">
+              <Label
+                htmlFor={`subcategory-${isMobile ? "mobile" : "desktop"}`}
+                className="text-sm font-medium"
+              >
+                Subcategory
+              </Label>
+              <Select
+                value={currentSubcategory}
+                onValueChange={handleSubcategoryChange}
+              >
+                <SelectTrigger
+                  id={`subcategory-${isMobile ? "mobile" : "desktop"}`}
+                  className="w-full"
+                >
+                  <SelectValue placeholder="Select subcategory" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Subcategories</SelectItem>
+                  {categoryObj.subCategories.map((subcat) => (
+                    <SelectItem key={subcat.id} value={subcat.id}>
+                      {subcat.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator className="my-4" />
+          </>
+        )}
 
       {/* Price range filter */}
       <div className="space-y-2">
-        <Label>Price Range</Label>
+        <Label className="text-sm font-medium">Price Range</Label>
         <div className="flex gap-2 items-center">
           <div className="w-full">
             <Input
+              ref={minPriceInputRef}
               type="number"
               placeholder="Min"
-              value={priceRange.min}
+              value={localPriceRange.min}
               onChange={(e) => handlePriceRangeChange("min", e.target.value)}
+              className="w-full"
             />
           </div>
           <span className="text-gray-500">-</span>
           <div className="w-full">
             <Input
+              ref={maxPriceInputRef}
               type="number"
               placeholder="Max"
-              value={priceRange.max}
+              value={localPriceRange.max}
               onChange={(e) => handlePriceRangeChange("max", e.target.value)}
+              className="w-full"
             />
           </div>
         </div>
       </div>
 
       {/* Apply filters button */}
-      {isMobile ? (
-        <SheetClose asChild>
-          <Button type="submit" className="w-full" variant="default">
-            Apply Filters
-          </Button>
-        </SheetClose>
-      ) : (
+      <div className="pt-2">
         <Button type="submit" className="w-full" variant="default">
           Apply Filters
         </Button>
-      )}
+      </div>
     </form>
   );
 
   return (
     <>
       {/* Mobile Filters (Sheet) */}
-      <div className="md:hidden">
+      <div className="block md:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button
@@ -277,9 +384,17 @@ export function FiltersSidebar({
             >
               <Filter className="h-4 w-4" />
               Filters
+              {activeFilterCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="ml-1 h-5 px-1 font-semibold"
+                >
+                  {activeFilterCount}
+                </Badge>
+              )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-full sm:max-w-md p-4 pt-8">
+          <SheetContent side="left" className="w-[90%] sm:max-w-md p-4 pt-8">
             <FilterForm isMobile={true} />
           </SheetContent>
         </Sheet>
@@ -292,7 +407,7 @@ export function FiltersSidebar({
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="hidden md:block w-64 h-fit sticky top-4"
       >
-        <Card>
+        <Card className="shadow-sm">
           <CardContent className="p-4">
             <FilterForm />
           </CardContent>

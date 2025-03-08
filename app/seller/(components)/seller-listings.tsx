@@ -29,6 +29,7 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
+  console.log({ listings });
 
   return (
     <div className="mb-8">
@@ -60,14 +61,14 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
                 >
                   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 h-full flex flex-col">
                     <div className="relative h-48 w-full">
-                      <Image
+                      <img
                         src={
-                          listing.images[0] ||
-                          "/placeholder.svg?height=200&width=300"
+                          listing.images.length > 0
+                            ? listing.images[0]
+                            : "/assets/icons/placeholder.svg?height=200&width=300"
                         }
                         alt={listing.title}
-                        fill
-                        className="object-cover"
+                        className="object-cover w-full h-full"
                       />
                     </div>
                     <div className="p-4 flex-1 flex flex-col">

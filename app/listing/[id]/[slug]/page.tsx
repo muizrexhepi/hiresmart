@@ -67,8 +67,7 @@ export default function ListingDetailsPage({
           const filteredListings = relatedItems.filter(
             (item) => item.$id !== params.id
           );
-
-          // Limit to 4 related listings
+          console.log({ filteredListings });
           setRelatedListings(filteredListings.slice(0, 4));
         }
       } catch (err) {
@@ -90,7 +89,7 @@ export default function ListingDetailsPage({
         { label: "Model", value: listing.model },
         { label: "Year", value: listing.year },
         { label: "Warranty", value: listing.warranty, fullWidth: true },
-      ].filter((detail) => detail.value) // Only include details that have values
+      ].filter((detail) => detail.value)
     : [];
 
   // Action handlers
@@ -197,7 +196,6 @@ export default function ListingDetailsPage({
           location={listing.location}
           date={formattedDate}
           featured={listing.featured}
-          backUrl={`/search/${listing.category}/${listing.location}`}
         />
 
         <div className="flex flex-col lg:flex-row gap-8 mt-6">

@@ -8,6 +8,10 @@ import ListingsSkeleton from "../(components)/listings-skeleton";
 import SubcategoryGrid from "../(components)/subcategory-header";
 import ListingsGrid from "../(components)/listings-grid";
 import FilterSidebar from "../(components)/filter-sidebar";
+import {
+  getFilteredListings,
+  getListingsByCategory,
+} from "@/app/actions/listings";
 
 interface CategoryPageProps {
   params: {
@@ -41,7 +45,7 @@ export async function generateMetadata({
   };
 }
 
-export default function CategoryPage({
+export default async function CategoryPage({
   params,
   searchParams,
 }: CategoryPageProps) {
@@ -64,6 +68,16 @@ export default function CategoryPage({
   const location = searchParams.location;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
 
+  // Fetch filtered listings
+  const { listings, totalPages } = await getFilteredListings({
+    categoryId: params.categorySlug,
+    minPrice,
+    maxPrice,
+    location,
+    page,
+    sortBy: sort,
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -72,7 +86,7 @@ export default function CategoryPage({
           category={{
             id: category.id,
             title: category.title,
-            iconName: category.iconName, // This was previously category.icon
+            iconName: category.iconName,
             color: category.color,
             titleMk: category.titleMk,
           }}
@@ -104,18 +118,18 @@ export default function CategoryPage({
             categorySlug={category.id}
           />
 
-          {/* Listings Grid with Suspense for loading state */}
+          {/* Listings Grid with direct data passing */}
           <div className="flex-1">
-            <Suspense fallback={<ListingsSkeleton />}>
-              <ListingsGrid
-                categoryId={category.id}
-                sort={sort}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-                location={location}
-                page={page}
-              />
-            </Suspense>
+            <ListingsGrid
+              listings={listings}
+              categoryId={category.id}
+              sort={sort}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              location={location}
+              page={page}
+              totalPages={totalPages}
+            />
           </div>
         </div>
       </div>

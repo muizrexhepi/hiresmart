@@ -5,19 +5,13 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import {
   Car,
-  Home,
   Briefcase,
-  Laptop,
   Sofa,
   Bike,
   Wrench,
   Building2,
   ShoppingBag,
   Smartphone,
-  Camera,
-  Headphones,
-  Truck,
-  PawPrint,
   LucideIcon,
 } from "lucide-react";
 

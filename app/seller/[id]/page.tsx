@@ -1,52 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Listing } from "@/lib/types";
+import { Listing, Seller } from "@/lib/types";
 import { SellerProfileHeader } from "../(components)/seller-profile-header";
 import { SellerListings } from "../(components)/seller-listings";
 import { getUserListings } from "@/app/actions/listings";
+import { getUserById } from "@/app/actions/users";
 
 export default function SellerProfilePage({
   params,
 }: {
   params: { id: string };
 }) {
-  const [seller, setSeller] = useState<{
-    id: string;
-    name: string;
-    image: string;
-    location: string;
-    bio: string;
-    rating: number;
-    totalListings: number;
-    memberSince: string;
-    verified: boolean;
-    responseRate: string;
-    responseTime: string;
-  } | null>(null);
+  const [seller, setSeller] = useState<Seller | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchSellerData = async () => {
       try {
-        // In a real implementation, you would fetch seller data from your API
-        // For now, we'll use mock data
-        const mockSeller = {
-          id: params.id,
-          name: "Alex Johnson",
-          image: "/placeholder.svg?height=200&width=200",
-          location: "skopje",
-          bio: "Professional photographer and tech enthusiast with over 10 years of experience. I sell high-quality electronics and photography equipment that I've personally tested. Feel free to contact me with any questions about my listings!",
-          rating: 4.8,
-          totalListings: 12,
-          memberSince: "March 2020",
-          verified: true,
-          responseRate: "98%",
-          responseTime: "Within 2 hours",
-        };
+        setLoading(true);
 
-        setSeller(mockSeller);
+        // Fetch the actual seller data using the getUserById function
+        const sellerData = await getUserById(params.id);
+
+        if (!sellerData) {
+          setError("Seller not found");
+          setLoading(false);
+          return;
+        }
+
+        setSeller(sellerData);
 
         // Fetch the user's listings
         const userListings = await getUserListings(params.id);
@@ -55,6 +40,7 @@ export default function SellerProfilePage({
         setLoading(false);
       } catch (error) {
         console.error("Error fetching seller data:", error);
+        setError("Failed to load seller information");
         setLoading(false);
       }
     };
@@ -86,11 +72,11 @@ export default function SellerProfilePage({
     );
   }
 
-  if (!seller) {
+  if (error || !seller) {
     return (
       <div className="min-h-screen bg-gray-50 p-4 md:p-8 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <p className="text-gray-500 mb-2">Seller not found</p>
+          <p className="text-gray-500 mb-2">{error || "Seller not found"}</p>
           <p className="text-sm text-gray-400">
             The seller you&lsquo;re looking for might not exist or has been
             removed.
@@ -100,11 +86,40 @@ export default function SellerProfilePage({
     );
   }
 
+  // Format the memberSince date if it's in ISO format
+  const formattedMemberSince = (() => {
+    try {
+      if (seller.memberSince.includes("T")) {
+        // If it's an ISO date string
+        return new Date(seller.memberSince).toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        });
+      }
+      return seller.memberSince;
+    } catch (e) {
+      return seller.memberSince;
+    }
+  })();
+
+  // Create a complete seller object for the SellerProfileHeader
+  const completeSellerProfile = {
+    id: seller.id,
+    name: seller.name,
+    image: seller.image,
+    rating: seller.rating,
+    totalListings: seller.totalListings,
+    memberSince: formattedMemberSince,
+    verified: seller.verified,
+    responseRate: seller.responseRate,
+    responseTime: seller.responseTime,
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-8">
         <SellerProfileHeader
-          seller={seller}
+          seller={completeSellerProfile}
           onContact={handleContact}
           onFollow={handleFollow}
           onShare={handleShare}

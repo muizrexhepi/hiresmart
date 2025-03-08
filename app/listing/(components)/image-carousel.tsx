@@ -25,17 +25,13 @@ export function ImageCarousel({ images, title }: ImageCarouselProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+    <div className="bg-white rounded-lg overflow-hidden">
       <div className="relative h-64 sm:h-80 md:h-96 w-full">
-        <Image
-          src={images[currentImageIndex] || "/placeholder.svg"}
-          alt={title}
-          fill
-          unoptimized
-          className="object-cover"
+        <img
+          src={images[currentImageIndex] || "/assets/icons/placeholder.svg"}
+          className="object-cover w-full h-full"
         />
 
-        {/* Navigation arrows */}
         <button
           onClick={prevImage}
           className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-colors"

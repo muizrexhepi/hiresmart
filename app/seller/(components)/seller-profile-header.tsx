@@ -12,21 +12,10 @@ import {
   Share2,
 } from "lucide-react";
 import { LOCATIONS } from "@/constants/locations";
+import { Seller } from "@/lib/types";
 
 interface SellerProfileHeaderProps {
-  seller: {
-    id: string;
-    name: string;
-    image: string;
-    location: string;
-    bio: string;
-    rating: number;
-    totalListings: number;
-    memberSince: string;
-    verified: boolean;
-    responseRate: string;
-    responseTime: string;
-  };
+  seller: Seller;
   onContact: () => void;
   onFollow: () => void;
   onShare: () => void;
@@ -44,6 +33,7 @@ export function SellerProfileHeader({
     setIsFollowing(!isFollowing);
     onFollow();
   };
+  console.log({ seller });
 
   const location = LOCATIONS.find((loc) => loc.id === seller.location);
 
@@ -52,16 +42,18 @@ export function SellerProfileHeader({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-lg shadow-md p-6 mb-8"
+      className="bg-white rounded-lg shadow p-6 mb-8"
     >
       <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
         {/* Profile Image */}
-        <div className="relative h-24 w-24 md:h-32 md:w-32 rounded-full overflow-hidden border-4 border-white shadow-md">
-          <Image
-            src={seller.image || "/placeholder.svg?height=200&width=200"}
+        <div className="relative h-24 w-24 md:h-32 md:w-32 rounded-full overflow-hidden border-4 border-white shadow">
+          <img
+            src={
+              seller.image ||
+              "/assets/icons/placeholder.svg?height=200&width=200"
+            }
             alt={seller.name}
-            fill
-            className="object-cover"
+            className="object-cover w-full h-full"
           />
         </div>
 

@@ -15,20 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-
-// Mock locations data
-const LOCATIONS = [
-  { id: "new-york", name: "New York" },
-  { id: "los-angeles", name: "Los Angeles" },
-  { id: "chicago", name: "Chicago" },
-  { id: "houston", name: "Houston" },
-  { id: "phoenix", name: "Phoenix" },
-  { id: "philadelphia", name: "Philadelphia" },
-  { id: "san-antonio", name: "San Antonio" },
-  { id: "san-diego", name: "San Diego" },
-  { id: "dallas", name: "Dallas" },
-  { id: "san-jose", name: "San Jose" },
-];
+import { LOCATIONS } from "@/constants/locations";
 
 interface FilterSidebarProps {
   minPrice?: number;
@@ -83,7 +70,7 @@ export default function FilterSidebar({
       params.set("maxPrice", priceRange[1].toString());
     }
 
-    if (selectedLocation) {
+    if (selectedLocation && selectedLocation !== "all") {
       params.set("location", selectedLocation);
     }
 
@@ -119,7 +106,7 @@ export default function FilterSidebar({
       {/* Filter sidebar - desktop always visible, mobile as overlay */}
       <motion.div
         className={`
-          bg-white rounded-lg shadow-sm p-5
+          bg-white rounded-lg shadow-sm p-5 h-fit
           ${
             isOpen
               ? "fixed inset-0 z-50 overflow-auto md:relative md:inset-auto md:w-72 md:z-0"
@@ -153,9 +140,9 @@ export default function FilterSidebar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="price_low">Price: Low to High</SelectItem>
-              <SelectItem value="price_high">Price: High to Low</SelectItem>
-              <SelectItem value="popular">Most Popular</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="priceAsc">Price: Low to High</SelectItem>
+              <SelectItem value="priceDesc">Price: High to Low</SelectItem>
             </SelectContent>
           </Select>
         </div>

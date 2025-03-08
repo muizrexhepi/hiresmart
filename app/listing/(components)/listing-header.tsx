@@ -1,10 +1,11 @@
 "use client";
 
-import { MapPin, Tag, Clock, Star } from "lucide-react";
-import Link from "next/link";
+import { MapPin, Tag, Clock } from "lucide-react";
 import { ArrowLeft } from "lucide-react";
 import { CATEGORIES } from "@/constants/categories";
 import { LOCATIONS } from "@/constants/locations";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface ListingHeaderProps {
   title: string;
@@ -13,7 +14,6 @@ interface ListingHeaderProps {
   location: string;
   date: string;
   featured?: boolean;
-  backUrl?: string;
 }
 
 export function ListingHeader({
@@ -23,7 +23,6 @@ export function ListingHeader({
   location,
   date,
   featured,
-  backUrl = "/search/all/all",
 }: ListingHeaderProps) {
   // Find category and location info
   const listingCategory = CATEGORIES.find((cat) => cat.id === category);
@@ -34,17 +33,18 @@ export function ListingHeader({
 
   // Get category color
   const categoryColor = listingCategory?.color || "text-gray-500";
+  const router = useRouter();
 
   return (
     <>
       {/* Back button */}
-      <Link
-        href={backUrl}
-        className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+      <button
+        onClick={() => router.back()}
+        className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4 mr-1" />
         Back to search results
-      </Link>
+      </button>
 
       {/* Header */}
       <div className="mb-6">

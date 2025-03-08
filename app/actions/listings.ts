@@ -163,10 +163,33 @@ export async function getListingsByCategory(
         Query.orderDesc("createdAt"),
       ]
     );
-
+    console.log({ response });
     return response.documents.map(convertToListing);
   } catch (error) {
     console.error("Error fetching listings by category:", error);
+    return [];
+  }
+}
+
+export async function getListingsBySubCategory(
+  category: string,
+  subcategory: string
+): Promise<Listing[]> {
+  try {
+    const response = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingsCollectionId,
+      [
+        Query.equal("category", category),
+        Query.equal("subcategory", subcategory),
+        Query.equal("status", "active"),
+        Query.orderDesc("createdAt"),
+      ]
+    );
+    console.log({ response });
+    return response.documents.map(convertToListing);
+  } catch (error) {
+    console.error("Error fetching listings by subcategory:", error);
     return [];
   }
 }

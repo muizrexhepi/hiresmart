@@ -3,7 +3,6 @@
 import { CATEGORIES } from "@/constants/categories";
 import { LOCATIONS } from "@/constants/locations";
 import type { Listing } from "@/lib/types";
-import { motion } from "framer-motion";
 import { CheckCircle, MapPin, Star, Tag } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -55,12 +54,8 @@ export function ListingCard({ listing }: ListingCardProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 border rounded-lg hover:shadow-md transition-all cursor-pointer bg-white"
+    <div
+      className="p-4 border rounded-lg cursor-pointer bg-white"
       onClick={handleClick}
     >
       <div className="flex flex-col md:flex-row gap-4">
@@ -71,7 +66,10 @@ export function ListingCard({ listing }: ListingCardProps) {
             </div>
           )}
           <Image
-            src={listing?.images[0] || "/placeholder.svg?height=200&width=300"}
+            src={
+              listing?.images[0] ||
+              "/assets/icons/placeholder.svg?height=200&width=300"
+            }
             alt={listing.title}
             fill
             unoptimized
@@ -156,6 +154,6 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

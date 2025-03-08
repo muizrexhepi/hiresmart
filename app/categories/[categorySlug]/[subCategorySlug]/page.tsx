@@ -5,8 +5,8 @@ import { CATEGORIES } from "@/constants/categories";
 import type { Metadata } from "next";
 import CategoryHeader from "../../(components)/category-header";
 import FilterSidebar from "../../(components)/filter-sidebar";
-import ListingsSkeleton from "../../(components)/listings-skeleton";
 import ListingsGrid from "../../(components)/listings-grid";
+import { getListingsBySubCategory } from "@/app/actions/listings";
 
 interface SubCategoryPageProps {
   params: {
@@ -52,7 +52,7 @@ export async function generateMetadata({
   };
 }
 
-export default function SubCategoryPage({
+export default async function SubCategoryPage({
   params,
   searchParams,
 }: SubCategoryPageProps) {
@@ -84,6 +84,12 @@ export default function SubCategoryPage({
   const location = searchParams.location;
   const page = searchParams.page ? Number.parseInt(searchParams.page) : 1;
 
+  // Fetch listings for this subcategory
+  const listings = await getListingsBySubCategory(
+    params.categorySlug,
+    params.subCategorySlug
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -92,13 +98,17 @@ export default function SubCategoryPage({
           category={{
             id: category.id,
             title: category.title,
-            iconName: category.iconName, // This was previously category.icon
+            iconName: category.iconName,
             color: category.color,
             titleMk: category.titleMk,
           }}
           breadcrumbs={[
             { label: "Home", href: "/" },
-            { label: category.title, href: `/category/${category.id}` },
+            { label: category.title, href: `/categories/${category.id}` },
+            {
+              label: subcategory.title,
+              href: `/categories/${category.id}/${subcategory.id}`,
+            },
           ]}
         />
 
@@ -113,19 +123,18 @@ export default function SubCategoryPage({
             subCategorySlug={subcategory.id}
           />
 
-          {/* Listings Grid with Suspense for loading state */}
+          {/* Listings Grid with direct data passing instead of Suspense */}
           <div className="flex-1">
-            <Suspense fallback={<ListingsSkeleton />}>
-              <ListingsGrid
-                categoryId={category.id}
-                subcategoryId={subcategory.id}
-                sort={sort}
-                minPrice={minPrice}
-                maxPrice={maxPrice}
-                location={location}
-                page={page}
-              />
-            </Suspense>
+            <ListingsGrid
+              listings={listings}
+              categoryId={category.id}
+              subcategoryId={subcategory.id}
+              sort={sort}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              location={location}
+              page={page}
+            />
           </div>
         </div>
       </div>

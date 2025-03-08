@@ -56,4 +56,6 @@ export interface Seller {
   totalListings: number;
   responseRate: string;
   responseTime: string;
+  location?: string;
+  bio?: string;
 }

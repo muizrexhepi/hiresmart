@@ -12,7 +12,7 @@ interface ListingsGridProps {
 
 export function ListingsGrid({ listings, onLoadMore }: ListingsGridProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="space-y-4 bg-transparent overflow-hidden">
       <AnimatePresence>
         {listings.map((listing) => (
           <ListingCard key={listing.$id} listing={listing} />

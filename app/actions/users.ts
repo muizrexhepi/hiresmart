@@ -6,7 +6,7 @@ function convertToSeller(document: Models.Document): Seller {
   return {
     id: document.id || document.$id,
     name: document.name,
-    image: document.image || "/placeholder.svg?height=48&width=48",
+    image: document.image || "/assets/icons/placeholder.svg?height=48&width=48",
     memberSince: document.memberSince || new Date().toLocaleDateString(),
     verified: document.verified || false,
     rating: document.rating || 0,
@@ -51,7 +51,7 @@ export async function createUserOnFirstLogin(
       return convertToSeller(existingUser);
     } catch (error) {
       // Try to get user preferences for avatar
-      let userAvatar = "/placeholder.svg?height=48&width=48";
+      let userAvatar = "/assets/icons/placeholder.svg?height=48&width=48";
       try {
         const userAccount = await account.get();
         if (userAccount.prefs && userAccount.prefs.avatar) {
@@ -73,6 +73,9 @@ export async function createUserOnFirstLogin(
         totalListings: 0,
         responseRate: "N/A",
         responseTime: "N/A",
+        location: "Not specified",
+        bio: "Not specified",
+        phone: "Not specified",
       };
 
       const newUserDoc = await databases.createDocument(

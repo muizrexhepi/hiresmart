@@ -30,9 +30,7 @@ export function Navbar() {
 
   return (
     <nav
-      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white shadow-sm py-2 ${
-        isScrolled ? " bg-white/80 backdrop-blur" : ""
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white shadow-sm py-2 `}
     >
       {/* Top Bar */}
       <div className="container flex h-16 items-center justify-between">
@@ -62,7 +60,7 @@ export function Navbar() {
                   <DropdownMenuItem>
                     <Link
                       href="/categories/vehicles"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 flex-1"
                     >
                       Vehicles
                     </Link>
@@ -70,7 +68,7 @@ export function Navbar() {
                   <DropdownMenuItem>
                     <Link
                       href="/categories/real-estate"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 flex-1"
                     >
                       Real Estate
                     </Link>
@@ -78,7 +76,7 @@ export function Navbar() {
                   <DropdownMenuItem>
                     <Link
                       href="/categories/electronics"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 flex-1"
                     >
                       Electronics
                     </Link>
