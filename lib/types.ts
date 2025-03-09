@@ -16,6 +16,11 @@ export interface Listing {
   model?: string;
   year?: string;
   warranty?: string;
+  mileage?: string;
+  gearbox?: string;
+  fuel?: string;
+  engineSize?: string;
+  color?: string;
   createdAt: string;
   seller?: {
     id: string;

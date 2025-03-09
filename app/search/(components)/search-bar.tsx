@@ -1,38 +1,50 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-interface SearchBarProps {
-  defaultQuery: string;
-  onSearch: (query: string) => void;
-}
-
-export function SearchBar({ defaultQuery, onSearch }: SearchBarProps) {
-  const [query, setQuery] = useState(defaultQuery);
+export function SearchBar() {
+  const [query, setQuery] = useState("");
+  const router = useRouter();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSearch(query);
+    if (query.trim()) {
+      router.push(`/search/all/all?q=${encodeURIComponent(query.trim())}`);
+    }
+  };
+
+  const handleClear = () => {
+    setQuery("");
   };
 
   return (
-    <div className="bg-white border border-gray-100 rounded-md shadow-sm mb-6">
-      <form onSubmit={handleSubmit} className="flex items-center">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+    <div className="relative flex-grow max-w-xl">
+      <form onSubmit={handleSubmit} className="flex">
+        <div className="relative flex-grow">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for services..."
-            className="w-full pl-12 pr-4 py-3 border-0 focus:ring-0 focus:outline-none text-gray-800"
+            placeholder="Find listings..."
+            className="w-full pl-10 pr-10 py-2 h-10 border border-gray-300 rounded-l-md focus:outline-none focus:border-gray-400"
           />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          {query && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
         </div>
         <Button
           type="submit"
-          className="m-1 px-8 py-2.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
+          className="h-10 px-5 text-white bg-[#023020] hover:bg-[#034530] rounded-r-md rounded-l-none transition-colors"
         >
           Search
         </Button>

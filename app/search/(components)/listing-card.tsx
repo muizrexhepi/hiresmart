@@ -65,17 +65,13 @@ export function ListingCard({ listing }: ListingCardProps) {
               Featured
             </div>
           )}
-          <Image
+          <img
             src={
               listing?.images[0] ||
               "/assets/icons/placeholder.svg?height=200&width=300"
             }
             alt={listing.title}
-            fill
-            unoptimized
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover transition-transform hover:scale-105"
-            priority={listing.featured}
+            className="object-cover transition-transform hover:scale-105 w-full h-full"
           />
         </div>
         <div className="flex-1">

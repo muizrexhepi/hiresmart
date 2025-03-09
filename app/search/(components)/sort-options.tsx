@@ -153,7 +153,7 @@ export function FiltersSortOptions({
                   <SelectValue placeholder="Subcategory" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Subcategories</SelectItem>
+                  <SelectItem value="all">All Subcategories</SelectItem>
                   {subcategories.map((subcat) => (
                     <SelectItem key={subcat.id} value={subcat.id}>
                       {subcat.title}
@@ -236,7 +236,7 @@ export function FiltersSortOptions({
                 <SelectValue placeholder="All Subcategories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Subcategories</SelectItem>
+                <SelectItem value="all">All Subcategories</SelectItem>
                 {subcategories.map((subcat) => (
                   <SelectItem key={subcat.id} value={subcat.id}>
                     {subcat.title}
@@ -260,14 +260,6 @@ export function FiltersSortOptions({
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        <div className="flex items-center gap-3 justify-end w-full md:w-auto">
-          <p className="text-gray-600 whitespace-nowrap">
-            <span className="font-semibold text-black">{resultsCount}</span>{" "}
-            listings
-          </p>
-
           <Select
             value={sortBy}
             onValueChange={(value) => {
@@ -292,6 +284,11 @@ export function FiltersSortOptions({
             </SelectContent>
           </Select>
         </div>
+
+        <p className="text-gray-600 whitespace-nowrap">
+          <span className="font-semibold text-black">{resultsCount}</span>{" "}
+          listings
+        </p>
       </div>
 
       {/* Clear filters button for desktop */}

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Globe, ChevronDown, Search } from "lucide-react";
+import { Menu, Globe, ChevronDown } from "lucide-react";
 import { AuthDialog } from "@/components/auth-dialog";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/user-menu";
@@ -16,14 +16,13 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "./providers/auth-provider";
-import { Input } from "@/components/ui/input";
+import { SearchBar } from "@/app/search/(components)/search-bar";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { user } = useAuth();
   const pathname = usePathname();
   const isSearchPage = pathname?.startsWith("/search");
-  const [searchQuery, setSearchQuery] = React.useState("");
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -32,11 +31,6 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle search logic here
-  };
 
   return (
     <nav
@@ -51,22 +45,11 @@ export function Navbar() {
           </Link>
         </div>
 
+        {/* Only show SearchBar on search pages */}
         {isSearchPage && (
-          <form
-            onSubmit={handleSearch}
-            className="hidden md:block flex-1 max-w-2xl mx-4"
-          >
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for services..."
-                className="w-full pl-10 pr-4 py-2 h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
-              />
-            </div>
-          </form>
+          <div className="hidden md:block flex-1 max-w-2xl mx-4">
+            <SearchBar />
+          </div>
         )}
 
         <div className="flex items-center gap-4">
@@ -153,18 +136,9 @@ export function Navbar() {
       {/* Mobile Search Bar - Only on search page */}
       {isSearchPage && (
         <div className="md:hidden border-t border-gray-100">
-          <form onSubmit={handleSearch} className="container py-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Find services..."
-                className="w-full pl-10 pr-4 py-2 h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
-              />
-            </div>
-          </form>
+          <div className="container py-2">
+            <SearchBar />
+          </div>
         </div>
       )}
     </nav>
