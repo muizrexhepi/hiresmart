@@ -40,7 +40,7 @@ export default function EditProfilePage() {
     phone: "",
     location: "",
     bio: "",
-    avatar: "/placeholder.svg?height=100&width=100",
+    avatar: "/assets/icons/placeholder.svg?height=100&width=100",
     memberSince: "",
   });
 
@@ -129,9 +129,12 @@ export default function EditProfilePage() {
       try {
         await updateUser(user.$id, {
           name: formData.name,
-          image: formData.avatar || "/placeholder.svg?height=48&width=48",
-          // Keep other fields as they are or set defaults if needed
+          image:
+            formData.avatar ||
+            "/assets/icons/placeholder.svg?height=48&width=48",
           memberSince: formData.memberSince || new Date().toLocaleDateString(),
+          location: formData.location, // Add location
+          phone: formData.phone, // Add phone number
         });
       } catch (userUpdateError) {
         console.error("Error updating user collection:", userUpdateError);

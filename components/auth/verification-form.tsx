@@ -53,11 +53,6 @@ export function VerificationForm({
       </div>
 
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          We&apos;ve sent a verification code to{" "}
-          <span className="font-medium text-foreground">{authState.email}</span>
-        </p>
-
         <div className="flex justify-center py-2" ref={otpRef}>
           <InputOTP
             maxLength={6}

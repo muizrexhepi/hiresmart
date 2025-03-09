@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { Listing, Seller } from "@/lib/types";
-import { SellerProfileHeader } from "../(components)/seller-profile-header";
 import { SellerListings } from "../(components)/seller-listings";
 import { getUserListings } from "@/app/actions/listings";
 import { getUserById } from "@/app/actions/users";
+import { useAuth } from "@/components/providers/auth-provider";
+import { RateSeller } from "../(components)/seller-rating";
+import { SellerProfileHeader } from "../(components)/seller-profile-header";
 
 export default function SellerProfilePage({
   params,
 }: {
   params: { id: string };
 }) {
+  const { user } = useAuth();
   const [seller, setSeller] = useState<Seller | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +27,7 @@ export default function SellerProfilePage({
 
         // Fetch the actual seller data using the getUserById function
         const sellerData = await getUserById(params.id);
-
+        console.log({ sellerData });
         if (!sellerData) {
           setError("Seller not found");
           setLoading(false);
@@ -50,8 +53,27 @@ export default function SellerProfilePage({
 
   // Action handlers
   const handleContact = () => {
-    console.log("Contact seller");
-    // Implement your contact logic here
+    if (seller?.phone) {
+      // If the seller has a phone number, prompt to call or message
+      const choice = window.confirm(
+        "Would you like to call this seller? Click OK to call or Cancel to message."
+      );
+      if (choice) {
+        // Call the seller
+        window.location.href = `tel:${seller.phone}`;
+      } else {
+        // Send SMS if on mobile
+        if (/Android|iPhone/i.test(navigator.userAgent)) {
+          window.location.href = `sms:${seller.phone}`;
+        } else {
+          // Fallback for desktop - just show the number
+          alert(`Seller's phone number: ${seller.phone}`);
+        }
+      }
+    } else {
+      // If no phone number, show a message
+      alert("This seller hasn't provided a contact number yet.");
+    }
   };
 
   const handleFollow = () => {
@@ -62,6 +84,18 @@ export default function SellerProfilePage({
   const handleShare = () => {
     console.log("Share seller profile");
     // Implement your share logic here
+  };
+
+  // Handle rating updates
+  const handleRatingSubmit = async (newRating: number) => {
+    if (seller) {
+      // Update seller rating in local state to reflect change immediately
+      // This is a simplification - the actual average is calculated server-side
+      setSeller({
+        ...seller,
+        rating: newRating,
+      });
+    }
   };
 
   if (loading) {
@@ -89,16 +123,16 @@ export default function SellerProfilePage({
   // Format the memberSince date if it's in ISO format
   const formattedMemberSince = (() => {
     try {
-      if (seller.memberSince.includes("T")) {
+      if (seller.memberSince && seller.memberSince.includes("T")) {
         // If it's an ISO date string
         return new Date(seller.memberSince).toLocaleDateString("en-US", {
           month: "long",
           year: "numeric",
         });
       }
-      return seller.memberSince;
+      return seller.memberSince || "Unknown";
     } catch (e) {
-      return seller.memberSince;
+      return seller.memberSince || "Unknown";
     }
   })();
 
@@ -107,12 +141,16 @@ export default function SellerProfilePage({
     id: seller.id,
     name: seller.name,
     image: seller.image,
-    rating: seller.rating,
-    totalListings: seller.totalListings,
+    rating: seller.rating || 0,
+    totalListings: seller.totalListings || 0,
     memberSince: formattedMemberSince,
-    verified: seller.verified,
-    responseRate: seller.responseRate,
-    responseTime: seller.responseTime,
+    verified: seller.verified || false,
+    responseRate: seller.responseRate || "N/A",
+    responseTime: seller.responseTime || "N/A",
+    phone: seller.phone || "",
+    location: seller.location || "",
+    bio: seller.bio || "",
+    totalRatings: seller.totalRatings || 0,
   };
 
   return (
@@ -124,6 +162,14 @@ export default function SellerProfilePage({
           onFollow={handleFollow}
           onShare={handleShare}
         />
+
+        {/* Only show rating component if user is logged in and isn't viewing their own profile */}
+        {user && user.$id !== seller.id && (
+          <RateSeller
+            sellerId={seller.id}
+            onRatingSubmit={handleRatingSubmit}
+          />
+        )}
 
         <SellerListings listings={listings} sellerId={seller.id} />
       </div>

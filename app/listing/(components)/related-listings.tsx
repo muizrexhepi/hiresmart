@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, Tag, Clock } from "lucide-react";
 import { LOCATIONS } from "@/constants/locations";
 import type { Listing } from "@/lib/types";
 
@@ -20,6 +20,45 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
+  // Format date
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - date.getTime());
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        return "Today";
+      } else if (diffDays === 1) {
+        return "Yesterday";
+      } else if (diffDays < 7) {
+        return `${diffDays} days ago`;
+      } else {
+        return date.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+        });
+      }
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // Status styling
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-amber-100 text-amber-700";
+      case "sold":
+        return "bg-gray-100 text-gray-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Similar Listings</h2>
@@ -32,11 +71,20 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
           >
             <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
               <div className="relative h-48 w-full">
-                {item.featured && (
-                  <div className="absolute top-2 left-2 z-10 bg-amber-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                    Featured
+                <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
+                  {item.featured && (
+                    <div className="bg-amber-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
+                      Featured
+                    </div>
+                  )}
+                  <div
+                    className={`px-2 py-1 rounded-md text-xs font-semibold ${getStatusStyle(
+                      item.status
+                    )}`}
+                  >
+                    {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                   </div>
-                )}
+                </div>
                 <Image
                   src={
                     item?.images[0] || "/placeholder.svg?height=200&width=300"
@@ -60,13 +108,26 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                   {LOCATIONS.find((loc) => loc.id === item.location)?.nameEn ||
                     item.location}
                 </div>
-                <div className="mt-auto flex items-center text-xs text-gray-500">
+
+                {item.category && (
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <Tag className="h-3 w-3 mr-1" />
+                    <span className="text-xs">
+                      {item.category}
+                      {item.subcategory ? ` › ${item.subcategory}` : ""}
+                    </span>
+                  </div>
+                )}
+
+                <div className="mt-auto flex items-center justify-between text-xs text-gray-500">
                   <div className="flex items-center">
                     <Star className="h-3 w-3 text-amber-500 mr-1" />
                     <span>{item?.seller?.rating || 5.0}</span>
                   </div>
-                  <span className="mx-2">•</span>
-                  <span>{item?.createdAt}</span>
+                  <div className="flex items-center">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>{formatDate(item.createdAt)}</span>
+                  </div>
                 </div>
               </div>
             </div>

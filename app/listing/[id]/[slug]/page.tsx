@@ -196,6 +196,7 @@ export default function ListingDetailsPage({
           location={listing.location}
           date={formattedDate}
           featured={listing.featured}
+          status={listing.status} // Add this line
         />
 
         <div className="flex flex-col lg:flex-row gap-8 mt-6">
@@ -206,18 +207,18 @@ export default function ListingDetailsPage({
             </div>
 
             {/* Description */}
+
+            {/* Additional details */}
+            {additionalDetails.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+                <AdditionalDetails listing={listing} />
+              </div>
+            )}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
               <DescriptionBox
                 description={listing.description || "No description provided."}
               />
             </div>
-
-            {/* Additional details */}
-            {additionalDetails.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                <AdditionalDetails details={additionalDetails} />
-              </div>
-            )}
           </div>
 
           <div className="w-full lg:w-1/3">

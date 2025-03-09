@@ -13,6 +13,9 @@ function convertToSeller(document: Models.Document): Seller {
     totalListings: document.totalListings || 0,
     responseRate: document.responseRate || "N/A",
     responseTime: document.responseTime || "N/A",
+    phone: document.phone || "Not specified",
+    location: document.location || "Not specified",
+    totalRatings: document.totalRatings || 0,
   };
 }
 

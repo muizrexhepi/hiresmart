@@ -21,6 +21,11 @@ export interface Listing {
   fuel?: string;
   engineSize?: string;
   color?: string;
+  doors?: string;
+  seats?: string;
+  driveType?: string;
+  bodyType?: string;
+  features?: string;
   createdAt: string;
   seller?: {
     id: string;
@@ -54,6 +59,7 @@ export interface ListingsParams {
 export interface Seller {
   id: string;
   name: string;
+  phone?: string;
   image: string;
   memberSince: string;
   verified: boolean;
@@ -63,4 +69,14 @@ export interface Seller {
   responseTime: string;
   location?: string;
   bio?: string;
+  totalRatings: number;
+}
+
+export interface Rating {
+  id: string;
+  sellerId: string;
+  raterId: string;
+  value: number; // 1-5 stars
+  comment?: string;
+  createdAt: string;
 }

@@ -3,7 +3,7 @@
 import { CATEGORIES } from "@/constants/categories";
 import { LOCATIONS } from "@/constants/locations";
 import type { Listing } from "@/lib/types";
-import { CheckCircle, MapPin, Star, Tag } from "lucide-react";
+import { CheckCircle, MapPin, Star, Tag, Gauge } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -13,7 +13,7 @@ interface ListingCardProps {
 
 export function ListingCard({ listing }: ListingCardProps) {
   const router = useRouter();
-  console.log({ listing });
+
   // Generate SEO-friendly slug
   const generateSlug = (title: string) =>
     title
@@ -38,6 +38,9 @@ export function ListingCard({ listing }: ListingCardProps) {
     .filter(Boolean)
     .join(" | ");
 
+  // Check if listing is a vehicle
+  const isVehicle = listing.category === "vehicles";
+
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -55,7 +58,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
   return (
     <div
-      className="p-4 border rounded-lg cursor-pointer bg-white"
+      className="p-4 border rounded-lg cursor-pointer bg-white hover:shadow-md transition-shadow"
       onClick={handleClick}
     >
       <div className="flex flex-col md:flex-row gap-4">
@@ -95,7 +98,23 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
 
           {productDetails && (
-            <div className="text-sm text-gray-600 mb-3">{productDetails}</div>
+            <div className="text-sm text-gray-600 mb-2">{productDetails}</div>
+          )}
+
+          {/* Vehicle-specific details - just show mileage for cleanliness */}
+          {isVehicle && listing.mileage && (
+            <div className="text-sm text-gray-600 mb-3 flex items-center gap-1">
+              <Gauge className="h-4 w-4 text-gray-500" />
+              <span>{listing.mileage} km</span>
+
+              {/* Optionally show just one more important detail like transmission or fuel type */}
+              {listing.gearbox && (
+                <span className="ml-3 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
+                  {listing.gearbox.charAt(0).toUpperCase() +
+                    listing.gearbox.slice(1)}
+                </span>
+              )}
+            </div>
           )}
 
           <div className="flex flex-wrap gap-3 text-sm text-gray-500 mb-3">

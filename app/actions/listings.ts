@@ -3,14 +3,41 @@ import { Listing, ListingStatus } from "@/lib/types";
 import { Query, Models } from "appwrite";
 
 function convertToListing(document: Models.Document): Listing {
+  // First, extract the seller information if it exists
+  let seller = undefined;
+  if (document.seller) {
+    // If seller is already in the correct format, use it directly
+    if (typeof document.seller === "object" && document.seller.id) {
+      seller = document.seller;
+    }
+    // Otherwise, we might need to construct it from raw data
+    else {
+      seller = {
+        id: document.seller.id || document.sellerId || document.userId,
+        name: document.seller.name || document.sellerName || "",
+        image: document.seller.image || document.sellerImage || "",
+        memberSince:
+          document.seller.memberSince || document.sellerMemberSince || "",
+        verified: document.seller.verified || document.sellerVerified || false,
+        rating: document.seller.rating || document.sellerRating || 0,
+        totalListings:
+          document.seller.totalListings || document.sellerTotalListings || 0,
+        responseRate:
+          document.seller.responseRate || document.sellerResponseRate || "",
+        responseTime:
+          document.seller.responseTime || document.sellerResponseTime || "",
+      };
+    }
+  }
+
   return {
     $id: document.$id,
     userId: document.userId,
     title: document.title,
-    price: document.price,
+    price: document.price !== undefined ? document.price : null,
     location: document.location,
-    status: document.status,
-    images: document.images,
+    status: document.status || "active",
+    images: document.images || [],
     category: document.category,
     subcategory: document.subcategory,
     description: document.description,
@@ -19,9 +46,19 @@ function convertToListing(document: Models.Document): Listing {
     model: document.model,
     year: document.year,
     warranty: document.warranty,
+    mileage: document.mileage,
+    gearbox: document.gearbox,
+    fuel: document.fuel,
+    engineSize: document.engineSize,
+    color: document.color,
+    doors: document.doors,
+    seats: document.seats,
+    driveType: document.driveType,
+    bodyType: document.bodyType,
+    features: document.features,
     createdAt: document.createdAt,
-    featured: document.featured,
-    seller: document.seller,
+    featured: document.featured || false,
+    seller: seller,
   };
 }
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { MapPin, Tag, Clock } from "lucide-react";
+import { MapPin, Tag, Clock, CheckCircle, Clock3 } from "lucide-react";
 import { ArrowLeft } from "lucide-react";
 import { CATEGORIES } from "@/constants/categories";
 import { LOCATIONS } from "@/constants/locations";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import type { ListingStatus } from "@/lib/types";
 
 interface ListingHeaderProps {
   title: string;
@@ -14,6 +15,7 @@ interface ListingHeaderProps {
   location: string;
   date: string;
   featured?: boolean;
+  status: ListingStatus;
 }
 
 export function ListingHeader({
@@ -23,6 +25,7 @@ export function ListingHeader({
   location,
   date,
   featured,
+  status,
 }: ListingHeaderProps) {
   // Find category and location info
   const listingCategory = CATEGORIES.find((cat) => cat.id === category);
@@ -34,6 +37,33 @@ export function ListingHeader({
   // Get category color
   const categoryColor = listingCategory?.color || "text-gray-500";
   const router = useRouter();
+
+  // Status styling
+  const getStatusStyle = (status: ListingStatus) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-amber-100 text-amber-700";
+      case "sold":
+        return "bg-gray-100 text-gray-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getStatusLabel = (status: ListingStatus) => {
+    switch (status) {
+      case "active":
+        return "Active";
+      case "pending":
+        return "Pending";
+      case "sold":
+        return "Sold";
+      default:
+        return "Unknown";
+    }
+  };
 
   return (
     <>
@@ -52,11 +82,20 @@ export function ListingHeader({
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
             {title}
           </h1>
-          {featured && (
-            <span className="bg-amber-500 text-white px-3 py-1 rounded-md text-xs font-semibold">
-              Featured
+          <div className="flex flex-col gap-2 items-end">
+            {featured && (
+              <span className="bg-amber-500 text-white px-3 py-1 rounded-md text-xs font-semibold">
+                Featured
+              </span>
+            )}
+            <span
+              className={`px-3 py-1 rounded-md text-xs font-semibold ${getStatusStyle(
+                status
+              )}`}
+            >
+              {getStatusLabel(status)}
             </span>
-          )}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           <div className="flex items-center gap-1 text-sm">
