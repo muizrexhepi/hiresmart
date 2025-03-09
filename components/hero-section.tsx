@@ -42,15 +42,15 @@ export function HeroSection() {
 
   return (
     <div className="relative sm:py-4 lg:py-8 sm:container">
-      <section className="bg-gradient-to-b from-[#023020] to-[#034530] relative overflow-hidden min-h-[600px] flex items-center sm:rounded-2xl shadow-lg">
+      <section className="bg-gradient-to-b from-[#023020] to-[#034530] relative overflow-hidden min-h-[600px] flex items-center sm:rounded-2xl">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black/40" />
           <Image
-            src="/placeholder.svg?height=600&width=1920"
+            src="/assets/images/bgImage.webp"
             alt="Background"
             width={1920}
             height={600}
-            className="object-cover w-full h-full opacity-20"
+            className="object-cover w-full h-full opacity-20 object-top"
           />
         </div>
 
@@ -59,7 +59,7 @@ export function HeroSection() {
           <div className="w-48 h-64 rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm p-3 shadow-lg rotate-[-6deg]">
             <div className="w-full h-36 rounded-xl overflow-hidden mb-3 bg-gray-100">
               <Image
-                src="/placeholder.svg?height=144&width=168"
+                src="/assets/images/iphone14.jpg"
                 alt="Product"
                 width={168}
                 height={144}
@@ -76,7 +76,7 @@ export function HeroSection() {
           <div className="w-48 h-64 rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm p-3 shadow-lg rotate-[6deg]">
             <div className="w-full h-36 rounded-xl overflow-hidden mb-3 bg-gray-100">
               <Image
-                src="/placeholder.svg?height=144&width=168"
+                src="/assets/images/appartment.jpg"
                 alt="Product"
                 width={168}
                 height={144}
@@ -148,8 +148,11 @@ export function HeroSection() {
                     </SelectContent>
                   </Select>
 
-                  <Button type="submit" className="h-14 px-8">
-                    <Search className="h-5 w-5" />
+                  <Button
+                    type="submit"
+                    className="h-14 px-6 bg-emerald-700 hover:bg-emerald-600 transition-colors"
+                  >
+                    <Search className="!size-6" />
                   </Button>
                 </div>
               </div>

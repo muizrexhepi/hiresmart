@@ -2,20 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { AnimatePresence } from "framer-motion";
-import { SearchHeader } from "../../(components)/search-header";
-import { SearchBar } from "../../(components)/search-bar";
-import { FiltersSidebar } from "../../(components)/filters-sidebar";
-import { SortOptions } from "../../(components)/sort-options";
+import { FiltersSortOptions } from "../../(components)/sort-options";
 import { LoadingState } from "../../(components)/loading-state";
 import { ErrorState } from "../../(components)/error-state";
 import { EmptyState } from "../../(components)/empty-state";
 import { ListingsGrid } from "../../(components)/listing-grid";
-import { Listing, ListingsResponse } from "@/lib/types";
+import { Listing } from "@/lib/types";
 import {
   getFilteredListings,
-  getListingsByCategory,
-  getListingsByLocation,
   searchListings,
   getAllListings,
 } from "@/app/actions/listings";
@@ -44,6 +38,7 @@ const SearchPage = ({
   const [totalPages, setTotalPages] = useState(1);
   const [selectedSubcategory, setSelectedSubcategory] =
     useState(subcategoryParam);
+  const [searchQuery, setSearchQuery] = useState(query || "");
 
   useEffect(() => {
     const handleResize = () => {
@@ -68,7 +63,10 @@ const SearchPage = ({
     if (subcategoryParam) {
       setSelectedSubcategory(subcategoryParam);
     }
-  }, [minPriceParam, maxPriceParam, subcategoryParam]);
+
+    // Update searchQuery when URL query parameter changes
+    setSearchQuery(query || "");
+  }, [minPriceParam, maxPriceParam, subcategoryParam, query]);
 
   const fetchListings = useCallback(async () => {
     setLoading(true);
@@ -80,9 +78,9 @@ const SearchPage = ({
         totalPages: 0,
       };
 
-      if (query) {
+      if (searchQuery) {
         // Search by query takes precedence
-        const searchResults = await searchListings(query);
+        const searchResults = await searchListings(searchQuery);
         result = {
           listings: searchResults,
           totalPages: Math.ceil(searchResults.length / 10),
@@ -161,7 +159,7 @@ const SearchPage = ({
   }, [
     params.category,
     params.location,
-    query,
+    searchQuery,
     priceRange.min,
     priceRange.max,
     selectedSubcategory,
@@ -172,11 +170,6 @@ const SearchPage = ({
   useEffect(() => {
     fetchListings();
   }, [fetchListings]);
-
-  const handleSearch = (newQuery: string) => {
-    setPage(1);
-    fetchListings();
-  };
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
@@ -193,76 +186,34 @@ const SearchPage = ({
     }
   };
 
-  const toggleFilters = () => {
-    setShowFilters((prev) => !prev);
-  };
-
-  const handlePriceRangeChange = (type: "min" | "max", value: string) => {
-    setPriceRange((prev) => ({
-      ...prev,
-      [type]: value === "" ? "" : parseInt(value),
-    }));
-    setPage(1);
-  };
-
-  const handleSubcategoryChange = (subcategory: string) => {
-    setSelectedSubcategory(subcategory);
-    setPage(1);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Search bar */}
-        <SearchBar
-          defaultQuery={query}
-          onSearch={handleSearch}
-          toggleFilters={toggleFilters}
-        />
-
+      <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Filters sidebar - hidden on mobile unless toggled */}
-          <AnimatePresence>
-            {showFilters && (
-              <FiltersSidebar
-                selectedCategory={params.category}
-                selectedSubcategory={selectedSubcategory}
-                onSubcategoryChange={handleSubcategoryChange}
-                priceRange={priceRange}
-                onPriceRangeChange={handlePriceRangeChange}
-                selectedLocation={params.location}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Results section */}
           <div className="flex-1">
-            {/* Sort options */}
             {!loading && !error && listings.length > 0 && (
-              <SortOptions
+              <FiltersSortOptions
                 sortBy={sortBy}
                 onSortChange={handleSortChange}
                 resultsCount={listings.length}
+                selectedCategory={params.category}
+                selectedSubcategory={selectedSubcategory}
+                selectedLocation={params.location}
               />
             )}
 
-            {/* Loading state */}
             {loading && page === 1 && <LoadingState />}
 
-            {/* Error state */}
             {!loading && error && (
               <ErrorState error={error} onRetry={handleRetry} />
             )}
 
-            {/* Empty state */}
             {!loading && !error && listings.length === 0 && <EmptyState />}
 
-            {/* Results list */}
             {!loading && !error && listings.length > 0 && (
               <ListingsGrid listings={listings} onLoadMore={handleLoadMore} />
             )}
 
-            {/* Load More Button */}
             {!loading && !error && page < totalPages && (
               <button
                 onClick={handleLoadMore}
@@ -272,7 +223,6 @@ const SearchPage = ({
               </button>
             )}
 
-            {/* Loading more indicator */}
             {loading && page > 1 && (
               <div className="flex justify-center my-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>

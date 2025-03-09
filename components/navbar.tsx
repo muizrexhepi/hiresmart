@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, Globe, ChevronDown } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, Globe, ChevronDown, Search } from "lucide-react";
 import { AuthDialog } from "@/components/auth-dialog";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/user-menu";
@@ -15,10 +16,14 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "./providers/auth-provider";
+import { Input } from "@/components/ui/input";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { user } = useAuth();
+  const pathname = usePathname();
+  const isSearchPage = pathname?.startsWith("/search");
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -28,19 +33,41 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle search logic here
+  };
+
   return (
     <nav
-      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white shadow-sm py-2 `}
+      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white shadow-sm`}
     >
-      {/* Top Bar */}
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center md:gap-8">
           <Link href="/" className="flex items-center">
             <span className="text-xl font-black tracking-tight text-[#023020]">
               TvojPazar.mk
             </span>
           </Link>
         </div>
+
+        {isSearchPage && (
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:block flex-1 max-w-2xl mx-4"
+          >
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for services..."
+                className="w-full pl-10 pr-4 py-2 h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+              />
+            </div>
+          </form>
+        )}
 
         <div className="flex items-center gap-4">
           {/* Desktop Navigation */}
@@ -93,109 +120,53 @@ export function Navbar() {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Language Selector - Desktop */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 gap-2 text-[#023020] hover:text-[#034530] hover:bg-green-50"
+                >
+                  <Globe className="h-4 w-4" />
+                  <span>English</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <span className="font-medium">English</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span className="font-medium">Македонски</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          {/* Language Selector */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 gap-2 text-[#023020] hover:text-[#034530] hover:bg-green-50"
-              >
-                <Globe className="h-4 w-4" />
-                <span>English</span>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <span className="font-medium">English</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <span className="font-medium">Македонски</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* User Section */}
+          {/* Auth/User Menu */}
           {user ? <UserMenu user={user} /> : <AuthDialog />}
-
-          {/* Mobile Menu */}
-          {/* <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 md:hidden text-[#023020] hover:text-[#034530] hover:bg-green-50"
-                aria-label="Menu"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] p-0">
-              <div className="flex flex-col h-full">
-                <div className="p-4 border-b">
-                  <SheetTitle className="text-left text-lg font-semibold text-[#023020]">
-                    Menu
-                  </SheetTitle>
-                </div>
-                <div className="flex-1 overflow-auto py-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start px-4 py-2 text-base font-normal text-[#023020] hover:text-[#034530] hover:bg-green-50"
-                    asChild
-                  >
-                    <Link href="/categories">Categories</Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start px-4 py-2 text-base font-normal text-[#023020] hover:text-[#034530] hover:bg-green-50"
-                    asChild
-                  >
-                    <Link href="/explore">Explore</Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start px-4 py-2 text-base font-normal text-[#023020] hover:text-[#034530] hover:bg-green-50"
-                    asChild
-                  >
-                    <Link href="/about">About</Link>
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-4 py-2 text-base font-normal text-[#023020] hover:text-[#034530] hover:bg-green-50"
-                      >
-                        <Globe className="h-4 w-4 mr-2" />
-                        <span>English</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>
-                        <span className="font-medium">English</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <span className="font-medium">Македонски</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  {!user && (
-                    <Button
-                      variant="default"
-                      className="w-full mx-4 mt-4 bg-[#023020] text-white hover:bg-[#034530]"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Join
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet> */}
         </div>
       </div>
+
+      {/* Mobile Search Bar - Only on search page */}
+      {isSearchPage && (
+        <div className="md:hidden border-t border-gray-100">
+          <form onSubmit={handleSearch} className="container py-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Find services..."
+                className="w-full pl-10 pr-4 py-2 h-11 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+              />
+            </div>
+          </form>
+        </div>
+      )}
     </nav>
   );
 }

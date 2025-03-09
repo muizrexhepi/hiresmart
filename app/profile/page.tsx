@@ -418,7 +418,7 @@ function ListingsGrid({
             <Card className="overflow-hidden h-full hover:shadow-md transition-shadow">
               <div className="relative h-48">
                 <img
-                  src={listing.images?.[0]}
+                  src={listing.images?.[0] || "/assets/icons/placeholder.svg"}
                   alt={listing.title}
                   className="h-full w-full object-cover"
                 />

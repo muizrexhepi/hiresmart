@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { appwriteConfig, storage } from "@/lib/appwrite";
 import { LOCATIONS } from "@/constants/locations";
 import { createListing } from "@/app/actions/listings";
+import { CATEGORIES } from "@/constants/categories";
 
 export default function NewListingPage() {
   const router = useRouter();
@@ -247,12 +248,11 @@ export default function NewListingPage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="vehicles">Vehicles</SelectItem>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="furniture">Furniture</SelectItem>
-                    <SelectItem value="services">Services</SelectItem>
-                    <SelectItem value="sports">Sports & Recreation</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.title}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

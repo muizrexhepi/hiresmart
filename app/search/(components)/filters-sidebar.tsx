@@ -321,7 +321,7 @@ export function FiltersSidebar({
                   <SelectValue placeholder="Select subcategory" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Subcategories</SelectItem>
+                  <SelectItem value="all">All Subcategories</SelectItem>
                   {categoryObj.subCategories.map((subcat) => (
                     <SelectItem key={subcat.id} value={subcat.id}>
                       {subcat.title}
