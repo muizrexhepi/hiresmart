@@ -19,6 +19,8 @@ export const appwriteConfig = {
   usersCollectionId: process.env.NEXT_PUBLIC_APPWRITE_USERS_COLLECTION_ID || "",
   ratingsCollectionId:
     process.env.NEXT_PUBLIC_APPWRITE_RATING_COLLECTION_ID || "",
+  savedListingsCollectionId:
+    process.env.NEXT_PUBLIC_APPWRITE_SAVED_LISTINGS_COLLECTION_ID || "",
   listingsCollectionId:
     process.env.NEXT_PUBLIC_APPWRITE_LISTINGS_COLLECTION_ID || "",
   storageId: process.env.NEXT_PUBLIC_APPWRITE_USER_LISTINGS_STORAGE_ID || "",

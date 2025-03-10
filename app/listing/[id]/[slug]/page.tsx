@@ -229,8 +229,8 @@ export default function ListingDetailsPage({
                 seller={seller || undefined} // Remove the non-null assertion
                 onMessage={handleMessage}
                 onCall={handleCall}
-                onSave={handleSave}
                 onShare={handleShare}
+                listingId={listing.$id}
               />
             </div>
           </div>

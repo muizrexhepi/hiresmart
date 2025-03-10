@@ -3,7 +3,6 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -42,8 +41,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useRouter } from "next/navigation";
-import { Listing, ListingStatus } from "@/lib/types";
+import type { Listing, ListingStatus } from "@/lib/types";
 import { deleteListing, getUserListings } from "../actions/listings";
+import SavedUserListings from "./(components)/saved-user-listings";
 
 export default function ProfilePage() {
   const [listings, setListings] = useState<Listing[]>([]);
@@ -293,7 +293,6 @@ export default function ProfilePage() {
                 />
               )}
             </TabsContent>
-
             <TabsContent value="pending" className="mt-6">
               {isLoading ? (
                 <LoadingState />
@@ -318,6 +317,14 @@ export default function ProfilePage() {
               )}
             </TabsContent>
           </Tabs>
+        </div>
+
+        {/* Saved Listings Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mt-8">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Saved Listings</h2>
+          </div>
+          <SavedUserListings />
         </div>
       </div>
 

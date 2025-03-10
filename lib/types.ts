@@ -80,3 +80,10 @@ export interface Rating {
   comment?: string;
   createdAt: string;
 }
+
+export interface SavedListing {
+  id: string;
+  listingId: string;
+  userId: string;
+  createdAt: string;
+}
