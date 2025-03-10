@@ -130,7 +130,7 @@ export default function SavedUserListings() {
         <h3 className="text-xl font-semibold">No saved listings</h3>
 
         <p className="text-sm text-slate-500">
-          You haven't saved any listings yet. Browse listings and click the
+          You haven&apos;t saved any listings yet. Browse listings and click the
           heart icon to save items.
         </p>
 
