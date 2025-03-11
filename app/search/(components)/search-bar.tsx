@@ -11,8 +11,12 @@ export function SearchBar() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search/all/all?q=${encodeURIComponent(query.trim())}`);
+    const trimmedQuery = query.trim();
+
+    if (trimmedQuery) {
+      router.push(`/search/all/all?q=${encodeURIComponent(trimmedQuery)}`);
+    } else {
+      router.push(`/search/all/all`);
     }
   };
 

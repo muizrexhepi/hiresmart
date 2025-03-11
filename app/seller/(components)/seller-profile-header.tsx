@@ -81,7 +81,7 @@ export function SellerProfileHeader({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container">
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
           {/* Profile Image */}

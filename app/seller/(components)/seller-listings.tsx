@@ -32,7 +32,7 @@ export function SellerListings({ listings, sellerId }: SellerListingsProps) {
   console.log({ listings });
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 p-4">
       <h2 className="text-xl font-bold text-gray-800 mb-4">
         Listings by this Seller
       </h2>

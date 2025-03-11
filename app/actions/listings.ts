@@ -231,8 +231,23 @@ export async function getListingsBySubCategory(
   }
 }
 
-export async function searchListings(searchTerm: string): Promise<Listing[]> {
+export async function searchListings(
+  searchTerm: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<{ listings: Listing[]; totalPages: number }> {
   try {
+    // First, get total count for calculating total pages
+    const countResponse = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.listingsCollectionId,
+      [Query.search("title", searchTerm), Query.equal("status", "active")]
+    );
+
+    const totalCount = countResponse.total;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Then get paginated results
     const response = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.listingsCollectionId,
@@ -240,13 +255,18 @@ export async function searchListings(searchTerm: string): Promise<Listing[]> {
         Query.search("title", searchTerm),
         Query.equal("status", "active"),
         Query.orderDesc("createdAt"),
+        Query.limit(limit),
+        Query.offset((page - 1) * limit),
       ]
     );
 
-    return response.documents.map(convertToListing);
+    return {
+      listings: response.documents.map(convertToListing),
+      totalPages: totalPages,
+    };
   } catch (error) {
     console.error("Error searching listings:", error);
-    return [];
+    return { listings: [], totalPages: 0 };
   }
 }
 
@@ -331,6 +351,9 @@ export async function getFilteredListings(params: {
   minPrice?: number | string;
   maxPrice?: number | string;
   location?: string;
+  condition?: string;
+  brand?: string;
+  year?: string;
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -342,6 +365,9 @@ export async function getFilteredListings(params: {
       minPrice,
       maxPrice,
       location,
+      condition,
+      brand,
+      year,
       page = 1,
       limit = 10,
       sortBy = "newest",
@@ -377,14 +403,27 @@ export async function getFilteredListings(params: {
       queries.push(Query.equal("location", location));
     }
 
-    // Add sort order based on sortBy parameter
+    // Add new filters
+    if (condition) {
+      queries.push(Query.equal("condition", condition));
+    }
+
+    if (brand) {
+      queries.push(Query.equal("brand", brand));
+    }
+
+    if (year) {
+      queries.push(Query.equal("year", year));
+    }
     if (sortBy === "newest") {
       queries.push(Query.orderDesc("createdAt"));
     } else if (sortBy === "oldest") {
       queries.push(Query.orderAsc("createdAt"));
-    } else if (sortBy === "priceAsc") {
+    } else if (sortBy === "price-low") {
+      // Changed from priceAsc
       queries.push(Query.orderAsc("price"));
-    } else if (sortBy === "priceDesc") {
+    } else if (sortBy === "price-high") {
+      // Changed from priceDesc
       queries.push(Query.orderDesc("price"));
     } else {
       // Default to newest

@@ -17,20 +17,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "./providers/auth-provider";
 import { SearchBar } from "@/app/search/(components)/search-bar";
+import { Skeleton } from "./ui/skeleton";
 
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = React.useState(false);
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const pathname = usePathname();
   const isSearchPage = pathname?.startsWith("/search");
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <nav
@@ -129,7 +121,13 @@ export function Navbar() {
           </div>
 
           {/* Auth/User Menu */}
-          {user ? <UserMenu user={user} /> : <AuthDialog />}
+          {isLoading ? (
+            <Skeleton className="h-10 w-[75px] rounded-full" />
+          ) : user ? (
+            <UserMenu user={user} />
+          ) : (
+            <AuthDialog />
+          )}
         </div>
       </div>
 

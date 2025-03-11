@@ -205,7 +205,10 @@ export function FiltersSidebar({
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-lg">Filters</h3>
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="font-semibold">
+              <Badge
+                variant="secondary"
+                className="font-semibold bg-emerald-100 text-emerald-700"
+              >
                 {activeFilterCount}
               </Badge>
             )}
@@ -223,7 +226,10 @@ export function FiltersSidebar({
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-lg">Filters</h3>
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="font-semibold">
+              <Badge
+                variant="secondary"
+                className="font-semibold bg-emerald-100 text-emerald-700"
+              >
                 {activeFilterCount}
               </Badge>
             )}
@@ -234,7 +240,7 @@ export function FiltersSidebar({
               variant="ghost"
               size="sm"
               onClick={handleClearFilters}
-              className="text-xs text-muted-foreground hover:text-foreground"
+              className="text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
             >
               Clear all
             </Button>
@@ -253,7 +259,7 @@ export function FiltersSidebar({
         <Select value={currentCategory} onValueChange={handleCategoryChange}>
           <SelectTrigger
             id={`category-${isMobile ? "mobile" : "desktop"}`}
-            className="w-full"
+            className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
           >
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
@@ -268,7 +274,7 @@ export function FiltersSidebar({
         </Select>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-gray-200" />
 
       {/* Location filter */}
       <div className="space-y-2">
@@ -281,7 +287,7 @@ export function FiltersSidebar({
         <Select value={currentLocation} onValueChange={handleLocationChange}>
           <SelectTrigger
             id={`location-${isMobile ? "mobile" : "desktop"}`}
-            className="w-full"
+            className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
           >
             <SelectValue placeholder="Select location" />
           </SelectTrigger>
@@ -296,7 +302,7 @@ export function FiltersSidebar({
         </Select>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-4 bg-gray-200" />
 
       {/* Subcategory filter */}
       {categoryObj &&
@@ -316,7 +322,7 @@ export function FiltersSidebar({
               >
                 <SelectTrigger
                   id={`subcategory-${isMobile ? "mobile" : "desktop"}`}
-                  className="w-full"
+                  className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   <SelectValue placeholder="Select subcategory" />
                 </SelectTrigger>
@@ -330,7 +336,7 @@ export function FiltersSidebar({
                 </SelectContent>
               </Select>
             </div>
-            <Separator className="my-4" />
+            <Separator className="my-4 bg-gray-200" />
           </>
         )}
 
@@ -345,7 +351,7 @@ export function FiltersSidebar({
               placeholder="Min"
               value={localPriceRange.min}
               onChange={(e) => handlePriceRangeChange("min", e.target.value)}
-              className="w-full"
+              className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
             />
           </div>
           <span className="text-gray-500">-</span>
@@ -356,7 +362,7 @@ export function FiltersSidebar({
               placeholder="Max"
               value={localPriceRange.max}
               onChange={(e) => handlePriceRangeChange("max", e.target.value)}
-              className="w-full"
+              className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
             />
           </div>
         </div>
@@ -364,7 +370,11 @@ export function FiltersSidebar({
 
       {/* Apply filters button */}
       <div className="pt-2">
-        <Button type="submit" className="w-full" variant="default">
+        <Button
+          type="submit"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+          variant="default"
+        >
           Apply Filters
         </Button>
       </div>
@@ -380,14 +390,14 @@ export function FiltersSidebar({
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
             >
               <Filter className="h-4 w-4" />
               Filters
               {activeFilterCount > 0 && (
                 <Badge
                   variant="secondary"
-                  className="ml-1 h-5 px-1 font-semibold"
+                  className="ml-1 h-5 px-1 font-semibold bg-emerald-100 text-emerald-700"
                 >
                   {activeFilterCount}
                 </Badge>
@@ -401,18 +411,13 @@ export function FiltersSidebar({
       </div>
 
       {/* Desktop Filters (Always visible) */}
-      <motion.div
-        initial={{ x: -20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="hidden md:block w-64 h-fit sticky top-4"
-      >
-        <Card className="shadow-sm">
+      <div className="hidden md:block w-64 h-fit">
+        <Card className=" border-gray-200">
           <CardContent className="p-4">
             <FilterForm />
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </>
   );
 }
