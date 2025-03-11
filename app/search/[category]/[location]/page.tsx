@@ -231,7 +231,7 @@ const SearchPage = ({
             {query && !loading && (
               <div className="mb-4">
                 <h1 className="text-xl font-semibold text-gray-800">
-                  Search results for "{query}"
+                  Search results for &quot;{query}&quot;
                 </h1>
                 <p className="text-gray-500">
                   Found {totalCount} listing{totalCount !== 1 ? "s" : ""}
