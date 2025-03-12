@@ -217,6 +217,7 @@ const SearchPage = ({
         <div className="flex flex-col md:flex-row gap-4">
           {/* Sidebar Filters */}
           <FiltersSidebar
+            className="hidden md:block"
             selectedCategory={params.category}
             selectedSubcategory={selectedSubcategory}
             onSubcategoryChange={handleSubcategoryChange}
@@ -228,7 +229,7 @@ const SearchPage = ({
           {/* Main Content */}
           <div className="flex-1">
             {/* Search Results Header */}
-            {query && !loading && (
+            {query && !loading ? (
               <div className="mb-4">
                 <h1 className="text-xl font-semibold text-gray-800">
                   Search results for "{query}"
@@ -237,21 +238,25 @@ const SearchPage = ({
                   Found {totalCount} listing{totalCount !== 1 ? "s" : ""}
                 </p>
               </div>
-            )}
+            ) : null}
 
             {/* Sort options */}
             {!loading && !error && listings.length > 0 && (
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
+              <div className="flex">
                 <FiltersSortOptions
                   sortBy={sortBy}
                   onSortChange={handleSortChange}
-                  resultsCount={listings.length}
                 />
-              </motion.div>
+                <FiltersSidebar
+                  selectedCategory={params.category}
+                  selectedSubcategory={selectedSubcategory}
+                  onSubcategoryChange={handleSubcategoryChange}
+                  priceRange={priceRange}
+                  onPriceRangeChange={handlePriceRangeChange}
+                  selectedLocation={params.location}
+                  className="md:hidden"
+                />
+              </div>
             )}
 
             {loading && <LoadingState />}

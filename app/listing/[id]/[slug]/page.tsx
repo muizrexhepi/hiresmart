@@ -187,7 +187,7 @@ export default function ListingDetailsPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-6 md:px-8 pb-24">
+      <div className="max-w-6xl mx-auto px-4 py-6 md:px-8 pb-24">
         {/* Header */}
         <ListingHeader
           title={listing.title}

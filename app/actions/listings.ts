@@ -373,91 +373,101 @@ export async function getFilteredListings(params: {
       sortBy = "newest",
     } = params;
 
-    const queries = [Query.equal("status", "active")];
+    console.log("Sorting by:", sortBy); // Debug log
+
+    // Filter queries - these should not include any sorting
+    const filterQueries = [Query.equal("status", "active")];
 
     if (categoryId) {
-      queries.push(Query.equal("category", categoryId));
+      filterQueries.push(Query.equal("category", categoryId));
     }
 
     if (subcategoryId) {
-      queries.push(Query.equal("subcategory", subcategoryId));
+      filterQueries.push(Query.equal("subcategory", subcategoryId));
     }
 
-    if (
-      minPrice !== undefined &&
-      minPrice !== "" &&
-      typeof minPrice === "number"
-    ) {
-      queries.push(Query.greaterThanEqual("price", minPrice));
+    // Convert price strings to numbers if needed
+    if (minPrice !== undefined && minPrice !== "") {
+      const numericMinPrice =
+        typeof minPrice === "number" ? minPrice : Number(minPrice);
+
+      if (!isNaN(numericMinPrice)) {
+        filterQueries.push(Query.greaterThanEqual("price", numericMinPrice));
+      }
     }
 
-    if (
-      maxPrice !== undefined &&
-      maxPrice !== "" &&
-      typeof maxPrice === "number"
-    ) {
-      queries.push(Query.lessThanEqual("price", maxPrice));
+    if (maxPrice !== undefined && maxPrice !== "") {
+      const numericMaxPrice =
+        typeof maxPrice === "number" ? maxPrice : Number(maxPrice);
+
+      if (!isNaN(numericMaxPrice)) {
+        filterQueries.push(Query.lessThanEqual("price", numericMaxPrice));
+      }
     }
 
     if (location) {
-      queries.push(Query.equal("location", location));
+      filterQueries.push(Query.equal("location", location));
     }
 
-    // Add new filters
     if (condition) {
-      queries.push(Query.equal("condition", condition));
+      filterQueries.push(Query.equal("condition", condition));
     }
 
     if (brand) {
-      queries.push(Query.equal("brand", brand));
+      filterQueries.push(Query.equal("brand", brand));
     }
 
     if (year) {
-      queries.push(Query.equal("year", year));
+      filterQueries.push(Query.equal("year", year));
     }
-    if (sortBy === "newest") {
-      queries.push(Query.orderDesc("createdAt"));
-    } else if (sortBy === "oldest") {
-      queries.push(Query.orderAsc("createdAt"));
-    } else if (sortBy === "price-low") {
-      // Changed from priceAsc
+
+    const queries = [...filterQueries];
+
+    if (sortBy === "price-low") {
+      console.log("Adding price ascending sort");
       queries.push(Query.orderAsc("price"));
     } else if (sortBy === "price-high") {
-      // Changed from priceDesc
+      console.log("Adding price descending sort");
       queries.push(Query.orderDesc("price"));
+    } else if (sortBy === "oldest") {
+      queries.push(Query.orderAsc("createdAt"));
+    } else if (sortBy === "featured") {
+      queries.push(Query.equal("featured", true));
+      queries.push(Query.orderDesc("createdAt"));
     } else {
       // Default to newest
       queries.push(Query.orderDesc("createdAt"));
     }
 
+    // Add pagination AFTER sorting
     queries.push(Query.limit(limit));
     queries.push(Query.offset((page - 1) * limit));
 
+    console.log("Final query:", JSON.stringify(queries)); // Debug log
+
+    // Fetch data
     const response = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.listingsCollectionId,
       queries
     );
 
-    // Get total count for pagination - exclude pagination related queries
-    const countQueries = queries.filter(
-      (q) => !q.toString().includes("limit") && !q.toString().includes("offset")
-    );
-
-    // Also remove sort queries for count
-    const countFilters = countQueries.filter(
-      (q) =>
-        !q.toString().includes("orderDesc") &&
-        !q.toString().includes("orderAsc")
-    );
-
+    // Handle count for pagination
     const countResponse = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.listingsCollectionId,
-      countFilters
+      filterQueries
     );
 
     const totalPages = Math.ceil(countResponse.total / limit);
+
+    // Additional debug output to verify the sorting worked
+    if (response.documents.length > 0) {
+      console.log("First few results with prices:");
+      response.documents.slice(0, 3).forEach((doc, i) => {
+        console.log(`${i}: ${doc.title} - Price: ${doc.price}`);
+      });
+    }
 
     return {
       listings: response.documents.map(convertToListing),
@@ -465,8 +475,20 @@ export async function getFilteredListings(params: {
     };
   } catch (error) {
     console.error("Error fetching filtered listings:", error);
-    return { listings: [], totalPages: 0 };
+    throw error;
   }
+}
+
+export function ensureNumericPrice(price: any): number {
+  if (typeof price === "number") {
+    return price;
+  }
+
+  // Convert string to number
+  const numericPrice = Number(price);
+
+  // Return the numeric value, or 0 if invalid
+  return isNaN(numericPrice) ? 0 : numericPrice;
 }
 
 export async function createListing(

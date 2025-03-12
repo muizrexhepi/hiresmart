@@ -3,7 +3,7 @@ export function LoadingState() {
     <div className="overflow-hidden space-y-6">
       <div className="flex justify-between items-center">
         <div className="w-32 md:w-44 h-8 bg-gray-200 rounded-md"></div>
-        <div className="h-5 bg-gray-200 rounded w-20 mb-4"></div>
+        <div className="w-32 md:hidden h-8 bg-gray-200 rounded-md"></div>
       </div>
       {[1, 2, 3].map((item) => (
         <div
