@@ -23,6 +23,8 @@ interface FiltersSidebarProps {
   };
   onPriceRangeChange?: (type: "min" | "max", value: string) => void;
   selectedLocation: string;
+  selectedConditions?: string[]; // Add this
+  onConditionsChange?: (conditions: string[]) => void; // Add this
   className: string;
 }
 
@@ -33,6 +35,8 @@ export function FiltersSidebar({
   priceRange: externalPriceRange,
   onPriceRangeChange,
   selectedLocation = "all",
+  selectedConditions = [],
+  onConditionsChange,
   className,
 }: FiltersSidebarProps) {
   const router = useRouter();
@@ -61,10 +65,10 @@ export function FiltersSidebar({
 
   // Get conditions from URL params if they exist
   const initialConditions = searchParams.get("conditions")?.split(",") || [];
-  const [selectedConditions, setSelectedConditions] =
-    useState<string[]>(initialConditions);
+  const [selectedConditionsState, setSelectedConditionsState] = useState<
+    string[]
+  >(selectedConditions || initialConditions);
 
-  // Count active filters
   const activeFilterCount = [
     currentCategory !== "all" ? 1 : 0,
     currentSubcategory ? 1 : 0,
@@ -76,11 +80,16 @@ export function FiltersSidebar({
 
   // Toggle condition selection
   const toggleCondition = (conditionId: string) => {
-    setSelectedConditions((prev) =>
-      prev.includes(conditionId)
-        ? prev.filter((id) => id !== conditionId)
-        : [...prev, conditionId]
-    );
+    const updatedConditions = selectedConditionsState.includes(conditionId)
+      ? selectedConditionsState.filter((id) => id !== conditionId)
+      : [...selectedConditionsState, conditionId];
+
+    setSelectedConditionsState(updatedConditions);
+
+    // If external handler is provided, use it
+    if (onConditionsChange) {
+      onConditionsChange(updatedConditions);
+    }
   };
 
   // Update internal state when props change
@@ -94,7 +103,9 @@ export function FiltersSidebar({
     if (selectedLocation) {
       setCurrentLocation(selectedLocation);
     }
-
+    if (selectedConditions && selectedConditions.length > 0) {
+      setSelectedConditionsState(selectedConditions);
+    }
     if (externalPriceRange) {
       setLocalPriceRange({
         min: externalPriceRange.min,
@@ -106,6 +117,7 @@ export function FiltersSidebar({
     selectedSubcategory,
     selectedLocation,
     externalPriceRange,
+    selectedConditions,
   ]);
 
   const categoryObj = CATEGORIES.find((cat) => cat.id === currentCategory);
@@ -149,19 +161,32 @@ export function FiltersSidebar({
       onPriceRangeChange("max", localPriceRange.max.toString());
     }
 
-    const params = new URLSearchParams();
+    // Start with current search params to preserve existing ones
+    const params = new URLSearchParams(searchParams.toString());
 
+    // Update or set the parameters you want to change
     if (localPriceRange.min) {
-      params.append("minPrice", localPriceRange.min.toString());
+      params.set("minPrice", localPriceRange.min.toString());
+    } else {
+      params.delete("minPrice");
     }
+
     if (localPriceRange.max) {
-      params.append("maxPrice", localPriceRange.max.toString());
+      params.set("maxPrice", localPriceRange.max.toString());
+    } else {
+      params.delete("maxPrice");
     }
+
     if (currentSubcategory) {
-      params.append("subcategory", currentSubcategory);
+      params.set("subcategory", currentSubcategory);
+    } else {
+      params.delete("subcategory");
     }
+
     if (selectedConditions.length > 0) {
-      params.append("conditions", selectedConditions.join(","));
+      params.set("conditions", selectedConditions.join(","));
+    } else {
+      params.delete("conditions");
     }
 
     router.push(
@@ -178,7 +203,7 @@ export function FiltersSidebar({
     setCurrentSubcategory("");
     setCurrentLocation("all");
     setLocalPriceRange({ min: "", max: "" });
-    setSelectedConditions([]);
+    setSelectedConditionsState([]);
 
     // Only update external state on explicit actions like clear
     if (onPriceRangeChange) {
@@ -209,7 +234,10 @@ export function FiltersSidebar({
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[90%] sm:max-w-md p-4 pt-8">
+          <SheetContent
+            side="right"
+            className="w-[90%] sm:max-w-md p-4 py-8 overflow-y-auto"
+          >
             <FilterForm
               isMobile={true}
               currentCategory={currentCategory}

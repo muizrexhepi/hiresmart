@@ -244,7 +244,7 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
                   </div>
                   <div className="flex items-center text-xs text-gray-500">
                     <Star className="h-3 w-3 text-amber-500 mr-1" />
-                    <span>{seller.rating}</span>
+                    <span>{seller.rating.toFixed(1)}</span>
                     <span className="mx-1">•</span>
                     <span>{seller.totalListings} listings</span>
                   </div>

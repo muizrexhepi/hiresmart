@@ -1,31 +1,63 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 export function SearchBar() {
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Initialize query from URL on component mount
+  useEffect(() => {
+    const urlQuery = searchParams.get("q");
+    if (urlQuery) {
+      setQuery(urlQuery);
+    }
+  }, [searchParams]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedQuery = query.trim();
 
-    if (trimmedQuery) {
-      router.push(`/search/all/all?q=${encodeURIComponent(trimmedQuery)}`);
-    } else {
-      router.push(`/search/all/all`);
+    let searchPath = pathname;
+
+    // If not already on a search page, go to the default search page
+    if (!pathname.includes("/search/")) {
+      searchPath = "/search/all/all";
     }
+
+    // Create new search params based on current ones
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (trimmedQuery) {
+      params.set("q", trimmedQuery);
+    } else {
+      params.delete("q");
+    }
+
+    router.push(`${searchPath}?${params.toString()}`);
   };
 
   const handleClear = () => {
     setQuery("");
+
+    // Remove only the query parameter but keep other parameters
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("q");
+
+    // Keep the current path but update the query parameters
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+
+    router.push(newUrl);
   };
 
   return (
-    <div className="relative flex-grow max-w-xl">
+    <div className="relative flex-grow xl:max-w-xl">
       <form onSubmit={handleSubmit} className="flex">
         <div className="relative flex-grow">
           <input

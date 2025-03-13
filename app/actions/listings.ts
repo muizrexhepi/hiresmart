@@ -231,45 +231,6 @@ export async function getListingsBySubCategory(
   }
 }
 
-export async function searchListings(
-  searchTerm: string,
-  page: number = 1,
-  limit: number = 10
-): Promise<{ listings: Listing[]; totalPages: number }> {
-  try {
-    // First, get total count for calculating total pages
-    const countResponse = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.listingsCollectionId,
-      [Query.search("title", searchTerm), Query.equal("status", "active")]
-    );
-
-    const totalCount = countResponse.total;
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // Then get paginated results
-    const response = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.listingsCollectionId,
-      [
-        Query.search("title", searchTerm),
-        Query.equal("status", "active"),
-        Query.orderDesc("createdAt"),
-        Query.limit(limit),
-        Query.offset((page - 1) * limit),
-      ]
-    );
-
-    return {
-      listings: response.documents.map(convertToListing),
-      totalPages: totalPages,
-    };
-  } catch (error) {
-    console.error("Error searching listings:", error);
-    return { listings: [], totalPages: 0 };
-  }
-}
-
 export async function getFeaturedListings(): Promise<Listing[]> {
   try {
     const response = await databases.listDocuments(
@@ -351,12 +312,13 @@ export async function getFilteredListings(params: {
   minPrice?: number | string;
   maxPrice?: number | string;
   location?: string;
-  condition?: string;
+  conditions?: string;
   brand?: string;
   year?: string;
   page?: number;
   limit?: number;
   sortBy?: string;
+  searchQuery: string;
 }): Promise<{ listings: Listing[]; totalPages: number }> {
   try {
     const {
@@ -365,17 +327,15 @@ export async function getFilteredListings(params: {
       minPrice,
       maxPrice,
       location,
-      condition,
+      conditions,
       brand,
       year,
       page = 1,
       limit = 10,
       sortBy = "newest",
+      searchQuery = "",
     } = params;
 
-    console.log("Sorting by:", sortBy); // Debug log
-
-    // Filter queries - these should not include any sorting
     const filterQueries = [Query.equal("status", "active")];
 
     if (categoryId) {
@@ -386,7 +346,10 @@ export async function getFilteredListings(params: {
       filterQueries.push(Query.equal("subcategory", subcategoryId));
     }
 
-    // Convert price strings to numbers if needed
+    if (searchQuery && searchQuery.trim()) {
+      filterQueries.push(Query.search("title", searchQuery.trim()));
+    }
+
     if (minPrice !== undefined && minPrice !== "") {
       const numericMinPrice =
         typeof minPrice === "number" ? minPrice : Number(minPrice);
@@ -409,8 +372,14 @@ export async function getFilteredListings(params: {
       filterQueries.push(Query.equal("location", location));
     }
 
-    if (condition) {
-      filterQueries.push(Query.equal("condition", condition));
+    if (conditions && conditions.length > 0) {
+      const conditionArray = conditions.split(",");
+
+      if (conditionArray.length === 1) {
+        filterQueries.push(Query.equal("condition", conditionArray[0]));
+      } else if (conditionArray.length > 1) {
+        filterQueries.push(Query.contains("condition", conditionArray));
+      }
     }
 
     if (brand) {

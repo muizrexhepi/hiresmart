@@ -13,36 +13,28 @@ import {
 interface FiltersSortOptionsProps {
   sortBy: string;
   onSortChange: (sort: string) => void;
+  listingCount: number;
 }
 
 export function FiltersSortOptions({
   sortBy,
   onSortChange,
+  listingCount,
 }: FiltersSortOptionsProps) {
-  const searchParams = useSearchParams();
-
-  const [currentSort, setCurrentSort] = useState(
-    sortBy || searchParams.get("sort") || "newest"
-  );
-
-  // This effect ensures the component stays in sync with props changes
-  useEffect(() => {
-    if (sortBy && sortBy !== currentSort) {
-      setCurrentSort(sortBy);
-    }
-  }, [sortBy]);
-
+  // Remove local state and use the prop directly
   const handleSortChange = (sort: string) => {
-    setCurrentSort(sort);
     onSortChange(sort);
   };
 
   return (
     <div className="w-full mb-4">
-      <div className="flex flex-wrap md:flex-nowrap gap-4 items-center justify-between">
-        <div className="flex flex-1 gap-3 flex-wrap sm:flex-nowrap">
-          <Select value={currentSort} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-[180px] border-gray-200">
+      <div className="flex flex-wrap md:flex-nowrap gap-4 items-center justify-between mr-2 md:mr-0">
+        <span className="font-semibold md:font-medium text-sm md:text-base">
+          {listingCount} results{" "}
+        </span>
+        <div className="gap-3 flex-wrap sm:flex-nowrap">
+          <Select value={sortBy} onValueChange={handleSortChange}>
+            <SelectTrigger className="w-[160px] border-gray-200">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -50,9 +42,7 @@ export function FiltersSortOptions({
               <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="price-low">Price: Low to High</SelectItem>
               <SelectItem value="price-high">Price: High to Low</SelectItem>
-              {/* Only include these options if your backend supports them */}
-              {/* <SelectItem value="featured">Featured</SelectItem> */}
-              {/* <SelectItem value="rating">Top Rated</SelectItem> */}
+              <SelectItem value="featured">Featured</SelectItem>
             </SelectContent>
           </Select>
         </div>

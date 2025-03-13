@@ -25,9 +25,10 @@ import { PriceRangeSlider } from "./price-range-filter";
 
 export const CONDITIONS = [
   { id: "new", label: "New" },
-  { id: "used_like_new", label: "Used - Like New" },
-  { id: "used_good", label: "Used - Good" },
-  { id: "used_fair", label: "Used - Fair" },
+  { id: "like-new", label: "Used - Like New" },
+  { id: "good", label: "Used - Good" },
+  { id: "fair", label: "Used - Fair" },
+  { id: "poor", label: "Used - Poor" },
 ];
 
 interface FilterFormProps {
@@ -82,7 +83,7 @@ export function FilterForm({
           {activeFilterCount > 0 && (
             <Badge
               variant="secondary"
-              className="font-semibold bg-emerald-100 text-emerald-700"
+              className="font-semibold bg-emerald-100 text-[#023020]"
             >
               {activeFilterCount}
             </Badge>
@@ -94,7 +95,7 @@ export function FilterForm({
             variant="ghost"
             size="sm"
             onClick={handleClearFilters}
-            className="text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+            className="text-xs text-[#023020] hover:text-[#034530] hover:bg-emerald-50"
           >
             Clear all
           </Button>
@@ -112,7 +113,7 @@ export function FilterForm({
         <Select value={currentCategory} onValueChange={handleCategoryChange}>
           <SelectTrigger
             id={`category-${isMobile ? "mobile" : "desktop"}`}
-            className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full border-gray-300 focus:ring-[#023020] focus:border-[#023020]"
           >
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
@@ -140,7 +141,7 @@ export function FilterForm({
         <Select value={currentLocation} onValueChange={handleLocationChange}>
           <SelectTrigger
             id={`location-${isMobile ? "mobile" : "desktop"}`}
-            className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full border-gray-300 focus:ring-[#023020] focus:border-[#023020]"
           >
             <SelectValue placeholder="Select location" />
           </SelectTrigger>
@@ -175,7 +176,7 @@ export function FilterForm({
               >
                 <SelectTrigger
                   id={`subcategory-${isMobile ? "mobile" : "desktop"}`}
-                  className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full border-gray-300 focus:ring-[#023020] focus:border-[#023020]"
                 >
                   <SelectValue placeholder="Select subcategory" />
                 </SelectTrigger>
@@ -219,7 +220,7 @@ export function FilterForm({
                 }`}
                 checked={selectedConditions.includes(condition.id)}
                 onCheckedChange={() => toggleCondition(condition.id)}
-                className="text-emerald-600 focus:ring-emerald-500"
+                className="text-[#023020] focus:ring-[#034530]"
               />
               <Label
                 htmlFor={`condition-${condition.id}-${
@@ -240,7 +241,7 @@ export function FilterForm({
       <div className="pt-2 flex flex-col gap-2">
         <Button
           type="submit"
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="w-full bg-[#023020] hover:bg-[#034530] text-white"
           variant="default"
         >
           Apply Filters

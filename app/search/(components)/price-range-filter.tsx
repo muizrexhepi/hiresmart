@@ -106,14 +106,14 @@ export function PriceRangeSlider({
           onValueChange={handleSliderChange}
         >
           <Slider.Track className="bg-gray-200 relative grow rounded-full h-2">
-            <Slider.Range className="absolute bg-emerald-500 rounded-full h-full" />
+            <Slider.Range className="absolute bg-[#023020] rounded-full h-full" />
           </Slider.Track>
           <Slider.Thumb
-            className="block w-5 h-5 bg-white border border-gray-300 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            className="block w-5 h-5 bg-white border border-gray-300 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#023020] focus:ring-offset-2"
             aria-label="Min price"
           />
           <Slider.Thumb
-            className="block w-5 h-5 bg-white border border-gray-300 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            className="block w-5 h-5 bg-white border border-gray-300 rounded-full hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#023020] focus:ring-offset-2"
             aria-label="Max price"
           />
         </Slider.Root>
@@ -127,7 +127,7 @@ export function PriceRangeSlider({
             value={inputValues.min}
             onChange={(e) => handleInputChange("min", e.target.value)}
             onBlur={() => handleInputBlur("min")}
-            className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full border-gray-300 focus:ring-[#023020] focus:border-[#023020]"
           />
         </div>
         <span className="text-gray-500">-</span>
@@ -138,7 +138,7 @@ export function PriceRangeSlider({
             value={inputValues.max}
             onChange={(e) => handleInputChange("max", e.target.value)}
             onBlur={() => handleInputBlur("max")}
-            className="w-full border-gray-300 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full border-gray-300 focus:ring-[#023020] focus:border-[#023020]"
           />
         </div>
       </div>

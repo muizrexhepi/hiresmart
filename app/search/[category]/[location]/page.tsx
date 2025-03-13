@@ -10,11 +10,7 @@ import { EmptyState } from "../../(components)/empty-state";
 import { ListingsGrid } from "../../(components)/listing-grid";
 import { Pagination } from "../../(components)/pagination";
 import { Listing } from "@/lib/types";
-import {
-  getFilteredListings,
-  searchListings,
-  getAllListings,
-} from "@/app/actions/listings";
+import { getFilteredListings, getAllListings } from "@/app/actions/listings";
 import { motion } from "framer-motion";
 
 const SearchPage = ({
@@ -30,6 +26,7 @@ const SearchPage = ({
   const minPriceParam = searchParams.get("minPrice");
   const maxPriceParam = searchParams.get("maxPrice");
   const subcategoryParam = searchParams.get("subcategory") || "";
+  const conditionsParam = searchParams.get("conditions") || "";
   const pageParam = searchParams.get("page");
   const sortParam = searchParams.get("sort");
 
@@ -47,7 +44,9 @@ const SearchPage = ({
     useState(subcategoryParam);
   const [searchQuery, setSearchQuery] = useState(query || "");
   const [totalCount, setTotalCount] = useState(0);
-
+  const [selectedConditions, setSelectedConditions] = useState(
+    conditionsParam ? conditionsParam.split(",") : []
+  );
   // Handle price range changes
   const handlePriceRangeChange = (type: "min" | "max", value: string) => {
     setPriceRange((prev) => ({ ...prev, [type]: value }));
@@ -90,15 +89,17 @@ const SearchPage = ({
     } else {
       setSelectedSubcategory("");
     }
-
-    // Update page from URL
+    if (conditionsParam) {
+      setSelectedConditions(conditionsParam.split(","));
+    } else {
+      setSelectedConditions([]);
+    }
     if (pageParam) {
       setPage(parseInt(pageParam));
     } else {
-      setPage(1); // Default to page 1 if no page param
+      setPage(1);
     }
 
-    // Update sortBy from URL
     if (sortParam) {
       setSortBy(sortParam);
     } else {
@@ -114,45 +115,67 @@ const SearchPage = ({
     query,
     pageParam,
     sortParam,
+    conditionsParam,
   ]);
-  console.log({ sortBy });
+
   const fetchListings = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      let result: { listings: Listing[]; totalPages: number } = {
-        listings: [],
-        totalPages: 0,
-      };
+      // Get all filter values directly from URL params
+      const query = searchParams.get("q") || "";
+      const subcategory = searchParams.get("subcategory") || "";
+      const minPrice = searchParams.get("minPrice")
+        ? parseInt(searchParams.get("minPrice")!)
+        : undefined;
+      const maxPrice = searchParams.get("maxPrice")
+        ? parseInt(searchParams.get("maxPrice")!)
+        : undefined;
+      const conditions = searchParams.get("conditions") || "";
+      const currentPage = searchParams.get("page")
+        ? parseInt(searchParams.get("page")!)
+        : 1;
+      const sort = searchParams.get("sort") || "newest";
 
-      if (searchQuery) {
-        // Search by query takes precedence
-        const searchResults = await searchListings(searchQuery, page, 10);
-        result = {
-          listings: searchResults.listings,
-          totalPages: searchResults.totalPages,
-        };
-      } else if (
+      let result: { listings: Listing[]; totalPages: number };
+
+      // Check if we need to show all listings with no filters
+      if (
         (params.category === "all" || !params.category) &&
         (params.location === "all" || !params.location) &&
-        !selectedSubcategory &&
-        !priceRange.min &&
-        !priceRange.max
+        !subcategory &&
+        !minPrice &&
+        !maxPrice &&
+        conditions.length === 0 &&
+        !query
       ) {
-        // If everything is "all" and no filters, get all listings
-        const allListings = await getAllListings(page, 10);
-        result = allListings;
+        console.log("Fetching all listings");
+        result = await getAllListings(currentPage, 10);
       } else {
-        // Apply filters
+        // Apply filters with or without search query
+        console.log("Fetching filtered listings with params:");
+        console.log({
+          category: params.category,
+          location: params.location,
+          subcategory,
+          minPrice,
+          maxPrice,
+          conditions,
+          sort,
+          query,
+        });
+
         result = await getFilteredListings({
           categoryId: params.category !== "all" ? params.category : undefined,
-          subcategoryId: selectedSubcategory,
+          subcategoryId: subcategory,
           location: params.location !== "all" ? params.location : undefined,
-          minPrice: priceRange.min,
-          maxPrice: priceRange.max,
-          page: page,
+          minPrice: minPrice,
+          maxPrice: maxPrice,
+          conditions: conditions,
+          page: currentPage,
           limit: 10,
-          sortBy: sortBy,
+          sortBy: sort,
+          searchQuery: query,
         });
       }
 
@@ -165,26 +188,16 @@ const SearchPage = ({
     } finally {
       setLoading(false);
     }
-  }, [
-    params.category,
-    params.location,
-    searchQuery,
-    priceRange.min,
-    priceRange.max,
-    selectedSubcategory,
-    sortBy,
-    page,
-  ]);
+  }, [searchParams, params.category, params.location]);
 
   useEffect(() => {
     fetchListings();
   }, [fetchListings]);
 
   const handleSortChange = (value: string) => {
-    setSortBy(value);
-
-    // Update URL with the new sort value
+    // Only update the URL, don't update local state
     const params = new URLSearchParams(searchParams.toString());
+
     if (value !== "newest") {
       params.set("sort", value);
     } else {
@@ -195,6 +208,8 @@ const SearchPage = ({
     params.set("page", "1");
 
     router.push(`${pathname}?${params.toString()}`);
+
+    // The useEffect that depends on searchParams will trigger the fetchListings
   };
 
   const handleRetry = () => {
@@ -223,6 +238,8 @@ const SearchPage = ({
             onSubcategoryChange={handleSubcategoryChange}
             priceRange={priceRange}
             onPriceRangeChange={handlePriceRangeChange}
+            selectedConditions={selectedConditions}
+            onConditionsChange={setSelectedConditions}
             selectedLocation={params.location}
           />
 
@@ -246,6 +263,7 @@ const SearchPage = ({
                 <FiltersSortOptions
                   sortBy={sortBy}
                   onSortChange={handleSortChange}
+                  listingCount={listings.length}
                 />
                 <FiltersSidebar
                   selectedCategory={params.category}
@@ -253,6 +271,8 @@ const SearchPage = ({
                   onSubcategoryChange={handleSubcategoryChange}
                   priceRange={priceRange}
                   onPriceRangeChange={handlePriceRangeChange}
+                  selectedConditions={selectedConditions}
+                  onConditionsChange={setSelectedConditions}
                   selectedLocation={params.location}
                   className="md:hidden"
                 />
