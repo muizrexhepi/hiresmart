@@ -23,6 +23,9 @@ interface CategoryPageProps {
     maxPrice?: string;
     location?: string;
     page?: string;
+    subcategory?: string;
+    conditions?: string;
+    q?: string;
   };
 }
 
@@ -67,15 +70,22 @@ export default async function CategoryPage({
     : undefined;
   const location = searchParams.location;
   const page = searchParams.page ? parseInt(searchParams.page) : 1;
+  const subcategory = searchParams.subcategory;
+  const conditions = searchParams.conditions;
+  const searchQuery = searchParams.q || "";
 
   // Fetch filtered listings
   const { listings, totalPages } = await getFilteredListings({
     categoryId: params.categorySlug,
+    subcategoryId: subcategory,
+    location,
     minPrice,
     maxPrice,
-    location,
+    conditions,
     page,
+    limit: 10,
     sortBy: sort,
+    searchQuery: searchQuery, // Adding the required searchQuery parameter
   });
 
   return (
