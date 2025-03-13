@@ -147,7 +147,8 @@ const SearchPage = ({
         !minPrice &&
         !maxPrice &&
         conditions.length === 0 &&
-        !query
+        !query &&
+        !sort
       ) {
         console.log("Fetching all listings");
         result = await getAllListings(currentPage, 10);

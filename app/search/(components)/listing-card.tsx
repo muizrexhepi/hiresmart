@@ -158,7 +158,7 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
 
             {/* Vehicle-specific details */}
             {listing.category === "vehicles" && (
-              <div className="flex flex-wrap gap-3 mb-3">
+              <div className="flex flex-wrap gap-3 mb-3 capitalize">
                 {listing.mileage && (
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Gauge className="h-4 w-4 text-gray-500" />
@@ -181,7 +181,7 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
 
                 {listing.engineSize && (
                   <div className="text-sm px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                    {listing.engineSize}
+                    {listing.engineSize}cc
                   </div>
                 )}
               </div>

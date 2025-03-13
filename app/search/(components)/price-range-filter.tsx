@@ -96,7 +96,7 @@ export function PriceRangeSlider({
     <div className="space-y-4">
       <Label className="text-sm font-medium">Price Range</Label>
 
-      <div className="pt-2 px-2">
+      <div className="">
         <Slider.Root
           className="relative flex items-center select-none touch-none w-full h-5"
           value={values}
