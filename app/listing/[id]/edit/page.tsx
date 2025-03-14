@@ -31,6 +31,7 @@ import { appwriteConfig, storage } from "@/lib/appwrite";
 import { LOCATIONS } from "@/constants/locations";
 import { getListingById, updateListing } from "@/app/actions/listings";
 import { Listing } from "@/lib/types";
+import { CATEGORIES } from "@/constants/categories";
 
 interface EditListingPageProps {
   params: {
@@ -58,6 +59,17 @@ export default function EditListingPage({ params }: EditListingPageProps) {
     model: "",
     year: "",
     warranty: "",
+    // Added vehicle-specific fields
+    mileage: "",
+    gearbox: "",
+    fuel: "",
+    engineSize: "",
+    color: "",
+    doors: "",
+    seats: "",
+    driveType: "",
+    bodyType: "",
+    features: "",
   });
 
   useEffect(() => {
@@ -102,6 +114,17 @@ export default function EditListingPage({ params }: EditListingPageProps) {
           model: listing.model || "",
           year: listing.year || "",
           warranty: listing.warranty || "",
+          // Populate vehicle-specific fields
+          mileage: listing.mileage || "",
+          gearbox: listing.gearbox || "",
+          fuel: listing.fuel || "",
+          engineSize: listing.engineSize || "",
+          color: listing.color || "",
+          doors: listing.doors || "",
+          seats: listing.seats || "",
+          driveType: listing.driveType || "",
+          bodyType: listing.bodyType || "",
+          features: listing.features || "",
         });
 
         // Set existing images
@@ -226,6 +249,19 @@ export default function EditListingPage({ params }: EditListingPageProps) {
         year: formData.year || undefined,
         warranty: formData.warranty || undefined,
         images: allImages,
+        // Include vehicle-specific fields when applicable
+        ...(formData.category === "vehicles" && {
+          mileage: formData.mileage || undefined,
+          gearbox: formData.gearbox || undefined,
+          fuel: formData.fuel || undefined,
+          engineSize: formData.engineSize || undefined,
+          color: formData.color || undefined,
+          doors: formData.doors || undefined,
+          seats: formData.seats || undefined,
+          driveType: formData.driveType || undefined,
+          bodyType: formData.bodyType || undefined,
+          features: formData.features || undefined,
+        }),
       };
 
       const updatedListing = await updateListing(params.id, listingData);
@@ -271,6 +307,19 @@ export default function EditListingPage({ params }: EditListingPageProps) {
     };
 
     return subcategories[category] || [];
+  };
+
+  // Check if we should show vehicle-specific fields
+  const isVehicleCategory = formData.category === "vehicles";
+
+  // Helper function to determine if vehicle subcategory is a motor vehicle (car, motorcycle, truck)
+  const isMotorVehicle = () => {
+    const motorVehicleTypes = ["cars", "motorcycles", "trucks"];
+    return (
+      isVehicleCategory &&
+      (motorVehicleTypes.includes(formData.subcategory.toLowerCase()) ||
+        !formData.subcategory)
+    );
   };
 
   if (isLoading) {
@@ -329,12 +378,11 @@ export default function EditListingPage({ params }: EditListingPageProps) {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="vehicles">Vehicles</SelectItem>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="furniture">Furniture</SelectItem>
-                    <SelectItem value="services">Services</SelectItem>
-                    <SelectItem value="sports">Sports & Recreation</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.title}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -405,148 +453,354 @@ export default function EditListingPage({ params }: EditListingPageProps) {
                 </Select>
               </div>
 
-              {/* Description */}
+              {/* Vehicle-specific fields - Only show for vehicle category */}
+              {isVehicleCategory && (
+                <>
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="font-semibold text-lg mb-4">
+                      Vehicle Details
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Brand and Model */}
+                      {/* Brand and Model */}
+                      <div className="space-y-2">
+                        <Label htmlFor="brand">Make/Brand</Label>
+                        <Input
+                          id="brand"
+                          name="brand"
+                          value={formData.brand}
+                          onChange={handleChange}
+                          placeholder="e.g., Toyota, Honda"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="model">Model</Label>
+                        <Input
+                          id="model"
+                          name="model"
+                          value={formData.model}
+                          onChange={handleChange}
+                          placeholder="e.g., Camry, Civic"
+                        />
+                      </div>
+
+                      {/* Year and Condition */}
+                      <div className="space-y-2">
+                        <Label htmlFor="year">Year</Label>
+                        <Input
+                          id="year"
+                          name="year"
+                          value={formData.year}
+                          onChange={handleChange}
+                          placeholder="e.g., 2019"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="condition">Condition</Label>
+                        <Select
+                          onValueChange={(value) =>
+                            handleSelectChange("condition", value)
+                          }
+                          value={formData.condition}
+                        >
+                          <SelectTrigger id="condition">
+                            <SelectValue placeholder="Select condition" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="new">New</SelectItem>
+                            <SelectItem value="like-new">Like New</SelectItem>
+                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="good">Good</SelectItem>
+                            <SelectItem value="fair">Fair</SelectItem>
+                            <SelectItem value="salvage">Salvage</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Mileage and Color */}
+                      {isMotorVehicle() && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="mileage">Mileage</Label>
+                            <Input
+                              id="mileage"
+                              name="mileage"
+                              value={formData.mileage}
+                              onChange={handleChange}
+                              placeholder="e.g., 45000"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="color">Color</Label>
+                            <Input
+                              id="color"
+                              name="color"
+                              value={formData.color}
+                              onChange={handleChange}
+                              placeholder="e.g., Black, Silver"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* Engine and Transmission */}
+                      {isMotorVehicle() && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="engineSize">Engine Size</Label>
+                            <Input
+                              id="engineSize"
+                              name="engineSize"
+                              value={formData.engineSize}
+                              onChange={handleChange}
+                              placeholder="e.g., 2.5L, 3.0L"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="gearbox">Transmission</Label>
+                            <Select
+                              onValueChange={(value) =>
+                                handleSelectChange("gearbox", value)
+                              }
+                              value={formData.gearbox}
+                            >
+                              <SelectTrigger id="gearbox">
+                                <SelectValue placeholder="Select transmission" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="automatic">
+                                  Automatic
+                                </SelectItem>
+                                <SelectItem value="manual">Manual</SelectItem>
+                                <SelectItem value="semi-automatic">
+                                  Semi-Automatic
+                                </SelectItem>
+                                <SelectItem value="cvt">CVT</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Fuel Type and Body Type */}
+                      {isMotorVehicle() && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="fuel">Fuel Type</Label>
+                            <Select
+                              onValueChange={(value) =>
+                                handleSelectChange("fuel", value)
+                              }
+                              value={formData.fuel}
+                            >
+                              <SelectTrigger id="fuel">
+                                <SelectValue placeholder="Select fuel type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="petrol">Petrol</SelectItem>
+                                <SelectItem value="diesel">Diesel</SelectItem>
+                                <SelectItem value="electric">
+                                  Electric
+                                </SelectItem>
+                                <SelectItem value="hybrid">Hybrid</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="bodyType">Body Type</Label>
+                            <Select
+                              onValueChange={(value) =>
+                                handleSelectChange("bodyType", value)
+                              }
+                              value={formData.bodyType}
+                            >
+                              <SelectTrigger id="bodyType">
+                                <SelectValue placeholder="Select body type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="sedan">Sedan</SelectItem>
+                                <SelectItem value="suv">SUV</SelectItem>
+                                <SelectItem value="hatchback">
+                                  Hatchback
+                                </SelectItem>
+                                <SelectItem value="coupe">Coupe</SelectItem>
+                                <SelectItem value="convertible">
+                                  Convertible
+                                </SelectItem>
+                                <SelectItem value="wagon">Wagon</SelectItem>
+                                <SelectItem value="pickup">Pickup</SelectItem>
+                                <SelectItem value="van">Van</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Doors and Seats */}
+                      {isMotorVehicle() && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="doors">Doors</Label>
+                            <Select
+                              onValueChange={(value) =>
+                                handleSelectChange("doors", value)
+                              }
+                              value={formData.doors}
+                            >
+                              <SelectTrigger id="doors">
+                                <SelectValue placeholder="Select number of doors" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="2">2</SelectItem>
+                                <SelectItem value="3">3</SelectItem>
+                                <SelectItem value="4">4</SelectItem>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="seats">Seats</Label>
+                            <Select
+                              onValueChange={(value) =>
+                                handleSelectChange("seats", value)
+                              }
+                              value={formData.seats}
+                            >
+                              <SelectTrigger id="seats">
+                                <SelectValue placeholder="Select number of seats" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="2">2</SelectItem>
+                                <SelectItem value="4">4</SelectItem>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="6">6</SelectItem>
+                                <SelectItem value="7">7+</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Drive Type and Warranty */}
+                      {isMotorVehicle() && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="driveType">Drive Type</Label>
+                            <Select
+                              onValueChange={(value) =>
+                                handleSelectChange("driveType", value)
+                              }
+                              value={formData.driveType}
+                            >
+                              <SelectTrigger id="driveType">
+                                <SelectValue placeholder="Select drive type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="fwd">FWD</SelectItem>
+                                <SelectItem value="rwd">RWD</SelectItem>
+                                <SelectItem value="awd">AWD</SelectItem>
+                                <SelectItem value="4wd">4WD</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="warranty">Warranty</Label>
+                            <Input
+                              id="warranty"
+                              name="warranty"
+                              value={formData.warranty}
+                              onChange={handleChange}
+                              placeholder="e.g., 3 months, 1 year remaining"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Provide a detailed description of your item or service"
+                      rows={5}
+                      required
+                    />
+                  </div>
+                </>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows={6}
-                  placeholder="Provide details about your listing..."
-                  required
-                />
-              </div>
-
-              {/* Condition - Optional */}
-              <div className="space-y-2">
-                <Label htmlFor="condition">Condition</Label>
-                <Select
-                  onValueChange={(value) =>
-                    handleSelectChange("condition", value)
-                  }
-                  value={formData.condition}
-                >
-                  <SelectTrigger id="condition">
-                    <SelectValue placeholder="Select condition" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="like-new">Like New</SelectItem>
-                    <SelectItem value="good">Good</SelectItem>
-                    <SelectItem value="fair">Fair</SelectItem>
-                    <SelectItem value="poor">Poor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Brand, Model, Year - Optional fields */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Brand</Label>
-                  <Input
-                    id="brand"
-                    name="brand"
-                    value={formData.brand}
-                    onChange={handleChange}
-                    placeholder="Brand name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="model">Model</Label>
-                  <Input
-                    id="model"
-                    name="model"
-                    value={formData.model}
-                    onChange={handleChange}
-                    placeholder="Model name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="year">Year</Label>
-                  <Input
-                    id="year"
-                    name="year"
-                    value={formData.year}
-                    onChange={handleChange}
-                    placeholder="Year"
-                  />
-                </div>
-              </div>
-
-              {/* Warranty - Optional */}
-              <div className="space-y-2">
-                <Label htmlFor="warranty">Warranty Information</Label>
-                <Input
-                  id="warranty"
-                  name="warranty"
-                  value={formData.warranty}
-                  onChange={handleChange}
-                  placeholder="e.g., 1 year manufacturer warranty"
-                />
-              </div>
-
-              {/* Images */}
-              <div className="space-y-4">
                 <Label>Images</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {/* Preview uploaded images */}
+                <div className="grid grid-cols-3 gap-4 mt-2">
                   {filePreviews.map((preview, index) => (
-                    <div
-                      key={index}
-                      className="aspect-square border rounded-md overflow-hidden relative"
-                    >
+                    <div key={index} className="relative">
                       <img
                         src={preview}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        alt={`Preview ${index}`}
+                        className="w-full h-24 object-cover rounded-md"
                       />
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
-                        aria-label="Remove image"
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
-
-                  {/* Image upload input */}
-                  {filePreviews.length < 6 && (
-                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-md flex flex-col items-center justify-center p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleFileChange}
-                        multiple
-                      />
-                      <ImagePlus className="h-8 w-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-500 text-center">
-                        Add Image
-                      </span>
-                    </label>
-                  )}
+                  <label className="flex items-center justify-center h-24 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      multiple
+                    />
+                    <div className="flex flex-col items-center space-y-2">
+                      <ImagePlus className="w-8 h-8 text-gray-400" />
+                      <span className="text-xs text-gray-500">Add Image</span>
+                    </div>
+                  </label>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Upload up to 6 images for your listing (max 5MB each)
+                  You can upload up to 10 images. First image will be the cover
+                  image.
                 </p>
               </div>
+              {/* Features */}
+              <div className="col-span-1 md:col-span-2 space-y-2">
+                <Label htmlFor="features">Features</Label>
+                <Textarea
+                  id="features"
+                  name="features"
+                  value={formData.features}
+                  onChange={handleChange}
+                  placeholder="List notable features, e.g., leather seats, sunroof, navigation system"
+                  rows={3}
+                />
+              </div>
             </CardContent>
-
-            <CardFooter className="flex justify-between">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => router.push("/profile")}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSaving}>
+            <CardFooter>
+              <Button type="submit" disabled={isSaving} className="w-full">
                 {isSaving ? (
-                  <Loader2 className="animate-spin size-5" />
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
                 ) : (
                   "Save Changes"
                 )}

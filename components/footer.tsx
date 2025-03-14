@@ -9,7 +9,11 @@ export function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-lg font-serif">TvojPazar.mk</h3>
+            <Link href="/" className="flex items-center mb-4">
+              <span className="text-xl font-black tracking-tight text-[#023020]">
+                TvojPazar.mk
+              </span>
+            </Link>
             <p className="text-sm text-gray-300">
               Your trusted marketplace for buying and selling in Macedonia.
             </p>
@@ -48,12 +52,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-green-400">
+                <Link href="/terms-of-service" className="hover:text-green-400">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-green-400">
+                <Link href="/privacy-policy" className="hover:text-green-400">
                   Privacy Policy
                 </Link>
               </li>

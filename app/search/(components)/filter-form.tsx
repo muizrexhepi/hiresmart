@@ -128,8 +128,6 @@ export function FilterForm({
         </Select>
       </div>
 
-      <Separator className="my-4 bg-gray-200" />
-
       {/* Location filter */}
       <div className="space-y-2">
         <Label
@@ -155,8 +153,6 @@ export function FilterForm({
           </SelectContent>
         </Select>
       </div>
-
-      <Separator className="my-4 bg-gray-200" />
 
       {/* Subcategory filter - only show if category is selected and has subcategories */}
       {categoryObj &&
@@ -203,8 +199,6 @@ export function FilterForm({
         onPriceChange={handlePriceRangeChange}
       />
 
-      <Separator className="my-4 bg-gray-200" />
-
       {/* Condition filter */}
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between">
@@ -220,7 +214,7 @@ export function FilterForm({
                 }`}
                 checked={selectedConditions.includes(condition.id)}
                 onCheckedChange={() => toggleCondition(condition.id)}
-                className="text-[#023020] focus:ring-[#034530]"
+                className="text-[#034530] focus:ring-[#034530] accent-[#034530] size-5"
               />
               <Label
                 htmlFor={`condition-${condition.id}-${
@@ -234,8 +228,6 @@ export function FilterForm({
           ))}
         </CollapsibleContent>
       </Collapsible>
-
-      <Separator className="my-4 bg-gray-200" />
 
       {/* Apply filters button */}
       <div className="pt-2 flex flex-col gap-2">

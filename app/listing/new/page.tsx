@@ -64,9 +64,8 @@ export default function NewListingPage() {
   });
 
   useEffect(() => {
-    // Check if the user is authenticated
     if (!user) {
-      router.push("/auth/login");
+      router.push("/");
       return;
     }
   }, [user, router]);

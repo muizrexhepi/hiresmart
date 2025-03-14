@@ -150,7 +150,7 @@ export function HeroSection() {
 
                   <Button
                     type="submit"
-                    className="h-14 px-6 bg-emerald-700 hover:bg-emerald-600 transition-colors"
+                    className="h-14 px-6 bg-[#023020] hover:bg-[#034530]0 transition-colors"
                   >
                     <Search className="!size-6" />
                   </Button>

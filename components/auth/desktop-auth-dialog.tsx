@@ -37,7 +37,7 @@ export function DesktopAuthDialog({
     <Dialog open={showDialog} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
-          className="hidden md:inline-flex"
+          className="hidden md:inline-flex bg-[#023020] hover:bg-[#034530]"
           onClick={() => onOpenChange(true)}
         >
           Login

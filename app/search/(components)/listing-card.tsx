@@ -103,7 +103,7 @@ export function ListingCard({ listing, featured = false }: ListingCardProps) {
 
   return (
     <div
-      className="p-4 border rounded-lg cursor-pointer bg-white hover:shadow-md transition-all duration-300 relative"
+      className="p-4 border rounded-lg cursor-pointer bg-white hover:shadow-sm transition-all duration-300 relative"
       onClick={handleClick}
     >
       {listing.featured && (

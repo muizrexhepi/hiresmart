@@ -294,18 +294,13 @@ const SearchPage = ({
                   <ListingsGrid listings={listings} />
                 </div>
 
-                <motion.div
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                  className="mt-8"
-                >
+                <div className="mt-8">
                   <Pagination
                     currentPage={page}
                     totalPages={totalPages}
                     onPageChange={handlePageChange}
                   />
-                </motion.div>
+                </div>
               </>
             )}
           </div>

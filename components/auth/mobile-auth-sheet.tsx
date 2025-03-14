@@ -35,7 +35,10 @@ export function MobileAuthSheet({
   return (
     <Sheet open={showSheet} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
-        <Button className="md:hidden" onClick={() => onOpenChange(true)}>
+        <Button
+          className="md:hidden bg-[#023020] hover:bg-[#034530]"
+          onClick={() => onOpenChange(true)}
+        >
           Login
         </Button>
       </SheetTrigger>
