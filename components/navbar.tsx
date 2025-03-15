@@ -48,7 +48,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full transition-all duration-200 bg-white border-b border-gray-100">
       <div className="container flex h-16 items-center justify-between">
         {" "}
-        <Link href="/" className="flex items-center ">
+        <Link href="/" className="md:flex items-center hidden">
           <span className="text-xl font-black tracking-tight text-[#023020]">
             TvojPazar.mk
           </span>
