@@ -43,7 +43,7 @@ export function MobileAuthSheet({
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="bottom" className="h-[90vh] w-full p-0 rounded-t-xl">
+      <SheetContent side="bottom" className="h-full w-full p-0">
         <div className="flex flex-col h-full">
           <SheetHeader className="flex justify-between items-center p-6 border-b">
             <SheetTitle className="text-xl font-semibold">
@@ -53,15 +53,6 @@ export function MobileAuthSheet({
                 ? "Sign in with email"
                 : "Sign in or join"}
             </SheetTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-4 rounded-full"
-              onClick={() => onOpenChange(false)}
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button>
           </SheetHeader>
 
           <div className="p-6 flex-1 overflow-auto">

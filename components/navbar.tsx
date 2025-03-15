@@ -47,18 +47,17 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full transition-all duration-200 bg-white border-b border-gray-100">
       <div className="container flex h-16 items-center justify-between">
+        {" "}
+        <Link href="/" className="flex items-center ">
+          <span className="text-xl font-black tracking-tight text-[#023020]">
+            TvojPazar.mk
+          </span>
+        </Link>
         <div className="flex items-center md:gap-8">
           {/* Mobile Menu Trigger */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden mr-2"
-                aria-label="Menu"
-              >
-                <Menu className="h-5 w-5 text-[#023020]" />
-              </Button>
+              <Menu className="text-[#023020] md:hidden" size={30} />
             </SheetTrigger>
             <SheetContent side="left" className="w-full sm:max-w-sm p-0">
               <div className="flex flex-col h-full">
@@ -130,20 +129,21 @@ export function Navbar() {
           </Sheet>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-xl font-black tracking-tight text-[#023020]">
-              TvojPazar.mk
-            </span>
-          </Link>
         </div>
-
+        <Link
+          href="/"
+          className="flex items-center absolute left-1/2 -translate-x-1/2 md:hidden"
+        >
+          <span className="text-xl font-black tracking-tight text-[#023020]">
+            TvojPazar.mk
+          </span>
+        </Link>
         {/* Search Bar - Desktop */}
         {isSearchPage && (
           <div className="hidden md:block flex-1 max-w-2xl mx-4">
             <SearchBar />
           </div>
         )}
-
         <div className="flex items-center gap-4">
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
@@ -209,7 +209,7 @@ export function Navbar() {
 
           {/* Auth/User Menu */}
           {isLoading ? (
-            <Skeleton className="h-10 w-[75px] rounded-full" />
+            <Skeleton className="h-10 w-10 rounded-full" />
           ) : user ? (
             <UserMenu user={user} />
           ) : (
